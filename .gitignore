@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+
+app_antes_login.py
+app_backup.py
+
+.git/

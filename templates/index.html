@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>{{ loja.nome }} | Catálogo</title>
+
+    <meta
+        name="description"
+        content="{{ loja.descricao }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     CABEÇALHO
+===================================================== -->
+
+<header class="topo">
+
+    <div class="topo-conteudo">
+
+
+        <!-- LOGO -->
+
+        <a
+            class="marca"
+            href="{{ url_for('index') }}"
+        >
+
+            <img
+                class="logo-principal"
+                src="{{ url_for('static', filename='img/logo.png') }}"
+                alt="Campo Novo - Agrosoluções"
+            >
+
+
+            <div class="nome-loja">
+
+                <strong>
+                    Campo Novo
+                </strong>
+
+                <span>
+                    Agrosoluções
+                </span>
+
+            </div>
+
+        </a>
+
+
+
+        <!-- MENU -->
+
+        <nav class="menu-topo">
+
+
+            {% if administrador %}
+
+            <a
+                class="link-admin"
+                href="{{ url_for('admin') }}"
+            >
+                🔐 Administração
+            </a>
+
+            {% else %}
+
+            <a
+                class="link-admin"
+                href="{{ url_for('login') }}"
+            >
+                🔐 Administração
+            </a>
+
+            {% endif %}
+
+
+
+            <a
+                class="whatsapp-topo"
+                href="https://wa.me/{{ loja.whatsapp }}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                💬 WhatsApp
+            </a>
+
+
+        </nav>
+
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     BANNER / OFERTA DA SEMANA
+===================================================== -->
+
+<section class="hero">
+
+    <div class="hero-conteudo">
+
+
+        {% if promocao %}
+
+
+        <!-- =================================================
+             OFERTA CADASTRADA PELO ADMINISTRADOR
+        ================================================== -->
+
+        <div class="promocao-banner">
+
+
+            <!-- TEXTO -->
+
+            <div class="promocao-texto">
+
+
+                <span class="promocao-etiqueta">
+                    🔥 OFERTA DA SEMANA
+                </span>
+
+
+                <h1>
+                    {{ promocao.nome }}
+                </h1>
+
+
+                {% if promocao.descricao %}
+
+                <p>
+                    {{ promocao.descricao }}
+                </p>
+
+                {% endif %}
+
+
+
+                <!-- PREÇO NORMAL -->
+
+                <span class="preco-antigo">
+
+                    De R$
+                    {{ "%.2f"|format(promocao.preco)|replace(".", ",") }}
+
+                </span>
+
+
+
+                <!-- PREÇO DA OFERTA -->
+
+                <span class="preco-promocional">
+
+                    Por R$
+                    {{ "%.2f"|format(promocao.preco_promocional)|replace(".", ",") }}
+
+                </span>
+
+
+
+                
+
+
+            </div>
+
+
+
+            <!-- IMAGEM -->
+
+            <div class="promocao-imagem">
+
+
+                {% if promocao.imagem %}
+
+                <img
+                    src="{{ url_for('static', filename='img/' + promocao.imagem) }}"
+                    alt="{{ promocao.nome }}"
+                >
+
+                {% else %}
+
+                <div class="sem-imagem">
+                    🌱
+                </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+
+
+
+        {% else %}
+
+
+        <!-- =================================================
+             BANNER PADRÃO
+        ================================================== -->
+
+        <div class="promocao-padrao">
+
+
+            <div class="promocao-padrao-texto">
+
+
+                <span class="etiqueta">
+                    DESTAQUE DA SEMANA
+                </span>
+
+
+                <h1>
+                    Confira nossas ofertas!
+                </h1>
+
+
+                <p>
+                    Produtos selecionados para facilitar
+                    o seu trabalho no campo.
+                </p>
+
+
+                <a
+                    class="hero-botao"
+                    href="#produtos"
+                >
+                    Ver produtos
+                </a>
+
+
+            </div>
+
+
+
+            <!-- IMAGEM PADRÃO -->
+
+            <div class="promocao-padrao-imagem">
+
+                <img
+                    src="{{ url_for('static', filename='img/trator.jpeg') }}"
+                    alt="Destaque da semana"
+                >
+
+            </div>
+
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CONTEÚDO PRINCIPAL
+===================================================== -->
+
+<main>
+
+
+<!-- =====================================================
+     BUSCA
+===================================================== -->
+
+<section class="busca-area">
+
+
+    <form
+        method="GET"
+        action="{{ url_for('index') }}"
+        class="busca"
+    >
+
+        <input
+            type="search"
+            name="busca"
+            value="{{ busca }}"
+            placeholder="🔎 O que você está procurando?"
+        >
+
+
+        <button type="submit">
+            Buscar
+        </button>
+
+    </form>
+
+
+
+    <!-- CATEGORIAS -->
+
+    {% if categorias %}
+
+    <div class="categorias">
+
+
+        <a
+            href="{{ url_for('index') }}"
+            class="{% if not categoria %}ativa{% endif %}"
+        >
+            Todos
+        </a>
+
+
+        {% for cat in categorias %}
+
+        <a
+            href="{{ url_for('index', categoria=cat.categoria) }}"
+            class="{% if categoria == cat.categoria %}ativa{% endif %}"
+        >
+            {{ cat.categoria }}
+        </a>
+
+        {% endfor %}
+
+
+    </div>
+
+    {% endif %}
+
+
+</section>
+
+
+
+<!-- =====================================================
+     CATÁLOGO
+===================================================== -->
+
+<section
+    class="produtos-area"
+    id="produtos"
+>
+
+
+    <!-- TÍTULO -->
+
+    <div class="titulo-secao">
+
+
+        <div>
+
+            <span>
+                NOSSO CATÁLOGO
+            </span>
+
+
+            <h2>
+                Produtos
+            </h2>
+
+        </div>
+
+
+        <p>
+
+            {{ produtos|length }}
+
+            produto{% if produtos|length != 1 %}s{% endif %}
+
+        </p>
+
+
+    </div>
+
+
+
+    {% if produtos %}
+
+
+    <!-- =================================================
+         PRODUTOS
+    ================================================== -->
+
+    <div class="produtos">
+
+
+        {% for produto in produtos %}
+
+
+        <article class="card">
+
+
+            <!-- SELO DE OFERTA -->
+
+            {% if produto.promocao %}
+
+            <span class="selo-promocao">
+                🔥 OFERTA
+            </span>
+
+            {% endif %}
+
+
+
+            <!-- IMAGEM DO PRODUTO -->
+
+            <a
+                href="{{ url_for('produto', produto_id=produto.id) }}"
+                class="imagem-produto"
+            >
+
+
+                {% if produto.imagem %}
+
+                <img
+                    src="{{ url_for('static', filename='img/' + produto.imagem) }}"
+                    alt="{{ produto.nome }}"
+                    loading="lazy"
+                >
+
+
+                {% else %}
+
+                <div class="sem-imagem">
+                    🌱
+                </div>
+
+                {% endif %}
+
+
+            </a>
+
+
+
+            <!-- INFORMAÇÕES -->
+
+            <div class="card-conteudo">
+
+
+                <!-- CATEGORIA -->
+
+                {% if produto.categoria %}
+
+                <span class="categoria-produto">
+                    {{ produto.categoria }}
+                </span>
+
+                {% endif %}
+
+
+
+                <!-- NOME -->
+
+                <h3>
+                    {{ produto.nome }}
+                </h3>
+
+
+
+                <!-- DESCRIÇÃO -->
+
+                {% if produto.descricao %}
+
+                <p class="descricao">
+                    {{ produto.descricao }}
+                </p>
+
+                {% endif %}
+
+
+
+                <!-- =================================================
+                     PREÇO
+                ================================================== -->
+
+                {% if produto.promocao and produto.preco_promocional %}
+
+
+                <!-- PRODUTO EM OFERTA -->
+
+                <div class="preco">
+
+
+                    <small class="preco-riscado">
+
+                        De R$
+                        {{ "%.2f"|format(produto.preco)|replace(".", ",") }}
+
+                    </small>
+
+
+                    <br>
+
+
+                    <span class="preco-oferta">
+
+                        R$
+                        {{ "%.2f"|format(produto.preco_promocional)|replace(".", ",") }}
+
+                    </span>
+
+
+                </div>
+
+
+                {% else %}
+
+
+                <!-- PREÇO NORMAL -->
+
+                <div class="preco">
+
+                    R$
+                    {{ "%.2f"|format(produto.preco)|replace(".", ",") }}
+
+                </div>
+
+
+                {% endif %}
+
+
+
+                <!-- =================================================
+                     BOTÃO
+                ================================================== -->
+
+                <a
+                    class="botao-interesse"
+                    href="{{ url_for('produto', produto_id=produto.id) }}"
+                >
+                    Ver produto
+                </a>
+
+
+            </div>
+
+
+        </article>
+
+
+        {% endfor %}
+
+
+    </div>
+
+
+
+    {% else %}
+
+
+    <!-- =================================================
+         NENHUM PRODUTO
+    ================================================== -->
+
+    <div class="nenhum-produto">
+
+
+        <div>
+            🔎
+        </div>
+
+
+        <h3>
+            Nenhum produto encontrado
+        </h3>
+
+
+        <p>
+            Tente pesquisar por outro termo
+            ou veja todas as categorias.
+        </p>
+
+
+        <a
+            href="{{ url_for('index') }}"
+        >
+            Ver todos os produtos
+        </a>
+
+
+    </div>
+
+
+    {% endif %}
+
+
+</section>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     RODAPÉ
+===================================================== -->
+
+<footer>
+
+
+    <div class="rodape-conteudo">
+
+
+        <strong>
+            Campo Novo - Agrosoluções
+        </strong>
+
+
+        <p>
+            Tudo para o homem do campo.
+        </p>
+
+
+        <small>
+            © 2026 Campo Novo - Agrosoluções
+        </small>
+
+
+    </div>
+
+
+</footer>
+
+
+
+</body>
+
+</html>

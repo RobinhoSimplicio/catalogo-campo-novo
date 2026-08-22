@@ -1,0 +1,1687 @@
+/* =====================================================
+   RESET / BASE
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f6f7f4;
+    color: #263326;
+}
+
+a {
+    text-decoration: none;
+}
+
+button,
+input,
+textarea {
+    font-family: inherit;
+}
+
+
+/* =====================================================
+   TOPO
+===================================================== */
+
+.topo {
+    width: 100%;
+    background: #174a2b;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .12);
+}
+
+.topo-conteudo {
+    max-width: 1200px;
+    min-height: 100px;
+    margin: auto;
+    padding: 10px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+
+/* =====================================================
+   MARCA / LOGO
+===================================================== */
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    color: white;
+    min-width: 0;
+}
+
+.logo-principal {
+    display: block;
+
+    width: 110px;
+    height: 80px;
+
+    object-fit: contain;
+    object-position: center;
+
+    flex-shrink: 0;
+
+    background: transparent;
+}
+
+.nome-loja {
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.05;
+}
+
+.nome-loja strong {
+    color: white;
+
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.nome-loja span {
+    margin-top: 6px;
+
+    color: #e7a52a;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    letter-spacing: .7px;
+}
+
+
+/* =====================================================
+   MENU DO TOPO
+===================================================== */
+
+.menu-topo {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+
+/* ADMIN */
+
+.link-admin {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 0 15px;
+
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, .08);
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    transition: .2s ease;
+}
+
+.link-admin:hover {
+    background: white;
+    color: #174a2b;
+    border-color: white;
+}
+
+
+/* WHATSAPP */
+
+.whatsapp-topo {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 0 18px;
+
+    border-radius: 8px;
+
+    background: #20a85a;
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    transition: .2s ease;
+}
+
+.whatsapp-topo:hover {
+    background: #178d4a;
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+    width: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #103e22 0%,
+            #174a2b 55%,
+            #23653b 100%
+        );
+
+    color: white;
+}
+
+.hero-conteudo {
+    max-width: 1200px;
+    min-height: 350px;
+
+    margin: auto;
+    padding: 35px 20px;
+
+    display: flex;
+    align-items: center;
+}
+
+
+/* =====================================================
+   OFERTA DA SEMANA
+===================================================== */
+
+.promocao-banner {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        400px;
+
+    align-items: center;
+
+    gap: 40px;
+}
+
+.promocao-texto {
+    padding: 10px 0;
+}
+
+.promocao-etiqueta {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    padding: 7px 13px;
+
+    border-radius: 20px;
+
+    background: #e7a52a;
+
+    color: #172817;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.promocao-texto h1 {
+    max-width: 700px;
+
+    margin: 5px 0 12px;
+
+    color: white;
+
+    font-size: clamp(32px, 5vw, 54px);
+
+    line-height: 1.05;
+}
+
+.promocao-texto p {
+    max-width: 650px;
+
+    margin: 0 0 18px;
+
+    color: #dce9df;
+
+    font-size: 17px;
+
+    line-height: 1.5;
+}
+
+
+/* PREÇO ANTIGO */
+
+.preco-antigo {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #c9d5cb;
+
+    font-size: 15px;
+
+    text-decoration: line-through;
+}
+
+
+/* PREÇO PROMOCIONAL */
+
+.preco-promocional {
+    display: block;
+
+    margin-bottom: 18px;
+
+    color: #ffd36a;
+
+    font-size: 35px;
+
+    font-weight: 800;
+}
+
+
+/* BOTÃO DO HERO */
+
+.hero-botao {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 13px 22px;
+
+    border-radius: 8px;
+
+    background: #e7a52a;
+
+    color: #172817;
+
+    font-weight: bold;
+
+    transition: .2s ease;
+}
+
+.hero-botao:hover {
+    background: #f1b83e;
+
+    transform: translateY(-2px);
+}
+
+
+/* IMAGEM DA OFERTA */
+
+.promocao-imagem {
+    height: 280px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px;
+
+    border-radius: 18px;
+
+    background: transparent;
+
+    border: none;
+
+    overflow: hidden;
+}
+
+.promocao-imagem img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    background: transparent;
+}
+
+
+/* =====================================================
+   BANNER PADRÃO
+===================================================== */
+
+.promocao-padrao {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        400px;
+
+    align-items: center;
+
+    gap: 40px;
+}
+
+.promocao-padrao-texto {
+    padding: 15px 0;
+}
+
+.promocao-padrao .etiqueta {
+    color: #e7a52a;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    letter-spacing: 1.5px;
+}
+
+.promocao-padrao h1 {
+    max-width: 700px;
+
+    margin: 14px 0;
+
+    color: white;
+
+    font-size: clamp(34px, 6vw, 58px);
+
+    line-height: 1.05;
+}
+
+.promocao-padrao p {
+    max-width: 650px;
+
+    color: #e3ece5;
+
+    font-size: 18px;
+
+    line-height: 1.6;
+}
+
+
+/* IMAGEM DO BANNER PADRÃO */
+
+.promocao-padrao-imagem {
+    height: 280px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    background: transparent;
+
+    border: none;
+
+    overflow: hidden;
+}
+
+.promocao-padrao-imagem img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    border-radius: 14px;
+
+    background: transparent;
+}
+
+
+/* =====================================================
+   CONTEÚDO PRINCIPAL
+===================================================== */
+
+main {
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 0 20px;
+}
+
+
+/* =====================================================
+   BUSCA
+===================================================== */
+
+.busca-area {
+    margin-top: -25px;
+
+    position: relative;
+
+    z-index: 5;
+}
+
+.busca {
+    background: white;
+
+    padding: 10px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 5px 25px rgba(0, 0, 0, .12);
+
+    display: flex;
+
+    gap: 8px;
+}
+
+.busca input {
+    flex: 1;
+
+    min-width: 0;
+
+    border: 0;
+
+    outline: 0;
+
+    padding: 13px;
+
+    font-size: 16px;
+}
+
+.busca button {
+    border: 0;
+
+    border-radius: 8px;
+
+    padding: 0 20px;
+
+    background: #174a2b;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.busca button:hover {
+    background: #23653b;
+}
+
+
+/* =====================================================
+   CATEGORIAS
+===================================================== */
+
+.categorias {
+    display: flex;
+
+    gap: 8px;
+
+    overflow-x: auto;
+
+    padding: 18px 0 5px;
+}
+
+.categorias a {
+    white-space: nowrap;
+
+    padding: 9px 15px;
+
+    background: white;
+
+    border-radius: 20px;
+
+    color: #35523c;
+
+    font-size: 14px;
+
+    border: 1px solid #e0e5df;
+}
+
+.categorias a.ativa {
+    background: #174a2b;
+
+    color: white;
+
+    border-color: #174a2b;
+}
+
+
+/* =====================================================
+   ÁREA DE PRODUTOS
+===================================================== */
+
+.produtos-area {
+    padding: 50px 0;
+}
+
+.titulo-secao {
+    display: flex;
+
+    align-items: end;
+    justify-content: space-between;
+
+    margin-bottom: 22px;
+}
+
+.titulo-secao span {
+    color: #d18c16;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+.titulo-secao h2 {
+    margin: 5px 0 0;
+
+    font-size: 32px;
+}
+
+.titulo-secao p {
+    color: #697369;
+}
+
+
+/* =====================================================
+   GRADE DE PRODUTOS
+===================================================== */
+
+.produtos {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(240px, 1fr)
+        );
+
+    gap: 22px;
+}
+
+
+/* =====================================================
+   CARD DO PRODUTO
+===================================================== */
+
+.card {
+    position: relative;
+
+    background: white;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 3px 14px rgba(0, 0, 0, .07);
+
+    transition:
+        transform .2s,
+        box-shadow .2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, .12);
+}
+
+
+/* =====================================================
+   SELO DE OFERTA
+===================================================== */
+
+.selo-promocao {
+    position: absolute;
+
+    top: 12px;
+    left: 12px;
+
+    z-index: 3;
+
+    padding: 7px 10px;
+
+    border-radius: 20px;
+
+    background: #e7a52a;
+
+    color: #172817;
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   IMAGEM DO PRODUTO
+===================================================== */
+
+.imagem-produto {
+    height: 230px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #eef2ed;
+
+    overflow: hidden;
+}
+
+.imagem-produto img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+}
+
+.sem-imagem {
+    font-size: 60px;
+}
+
+
+/* =====================================================
+   CONTEÚDO DO CARD
+===================================================== */
+
+.card-conteudo {
+    padding: 18px;
+}
+
+.categoria-produto {
+    color: #7a8b7c;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+}
+
+.card h3 {
+    margin: 8px 0;
+
+    font-size: 19px;
+}
+
+.descricao {
+    color: #657065;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    min-height: 42px;
+}
+
+
+/* =====================================================
+   PREÇOS
+===================================================== */
+
+.preco {
+    margin: 14px 0;
+
+    color: #174a2b;
+
+    font-size: 25px;
+
+    font-weight: bold;
+}
+
+.preco-riscado {
+    color: #8a958b;
+
+    font-size: 14px;
+
+    text-decoration: line-through;
+}
+
+.preco-oferta {
+    color: #174a2b;
+
+    font-size: 25px;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   BOTÃO VER PRODUTO
+===================================================== */
+
+.botao-interesse {
+    display: block;
+
+    text-align: center;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    background: #174a2b;
+
+    color: white;
+
+    font-weight: bold;
+}
+
+.botao-interesse:hover {
+    background: #23653b;
+}
+
+
+/* =====================================================
+   CONTROLES DE OFERTA
+===================================================== */
+
+.admin-oferta {
+    margin-top: 12px;
+
+    padding-top: 12px;
+
+    border-top: 1px solid #e2e7e2;
+
+    text-align: center;
+}
+
+.admin-oferta form {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.admin-oferta input {
+    width: 100%;
+
+    padding: 9px;
+
+    border: 1px solid #d5ddd6;
+
+    border-radius: 7px;
+
+    outline: none;
+
+    font-size: 13px;
+}
+
+.admin-oferta input:focus {
+    border-color: #174a2b;
+}
+
+.botao-definir-oferta {
+    border: 0;
+
+    padding: 9px;
+
+    border-radius: 7px;
+
+    background: #e7a52a;
+
+    color: #172817;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.botao-definir-oferta:hover {
+    background: #f1b83e;
+}
+
+.admin-oferta strong {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #174a2b;
+
+    font-size: 13px;
+}
+
+.botao-remover-oferta {
+    border: 0;
+
+    padding: 8px 12px;
+
+    border-radius: 7px;
+
+    background: #f0f2f0;
+
+    color: #7b3d3d;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.botao-remover-oferta:hover {
+    background: #eadede;
+}
+
+
+/* =====================================================
+   NENHUM PRODUTO
+===================================================== */
+
+.nenhum-produto {
+    background: white;
+
+    padding: 60px 20px;
+
+    text-align: center;
+
+    border-radius: 14px;
+}
+
+.nenhum-produto div {
+    font-size: 45px;
+}
+
+.nenhum-produto a {
+    display: inline-block;
+
+    margin-top: 12px;
+
+    padding: 12px 18px;
+
+    background: #174a2b;
+
+    color: white;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   RODAPÉ
+===================================================== */
+
+footer {
+    background: #102e1c;
+
+    color: white;
+
+    padding: 35px 20px;
+}
+
+.rodape-conteudo {
+    max-width: 1200px;
+
+    margin: auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    text-align: center;
+}
+
+footer p {
+    color: #bdcbbf;
+}
+
+footer small {
+    color: #829285;
+}
+
+.admin-link {
+    margin-top: 8px;
+
+    color: #c8d4ca;
+
+    font-size: 13px;
+}
+
+.admin-link:hover {
+    color: #e7a52a;
+}
+
+
+/* =====================================================
+   PAINEL ADMINISTRATIVO
+===================================================== */
+
+.admin-area {
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 45px 20px 70px;
+}
+
+.admin-titulo {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 30px;
+}
+
+.admin-titulo span {
+    color: #d18c16;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+.admin-titulo h1 {
+    margin: 6px 0 0;
+
+    font-size: 36px;
+
+    color: #174a2b;
+}
+
+
+/* BOTÕES DO ADMIN */
+
+.botao-salvar,
+.botao-secundario {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 18px;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+}
+
+.botao-salvar {
+    border: 0;
+
+    background: #174a2b;
+
+    color: white;
+
+    cursor: pointer;
+}
+
+.botao-salvar:hover {
+    background: #23653b;
+}
+
+.botao-secundario {
+    background: white;
+
+    color: #35523c;
+
+    border: 1px solid #dce3dc;
+}
+
+.botao-secundario:hover {
+    border-color: #174a2b;
+
+    color: #174a2b;
+}
+
+
+/* =====================================================
+   MENSAGENS
+===================================================== */
+
+.mensagens {
+    margin-bottom: 25px;
+}
+
+.mensagem {
+    padding: 14px 18px;
+
+    border-radius: 10px;
+
+    background: #eaf5ec;
+
+    color: #174a2b;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   LISTA ADMINISTRATIVA
+===================================================== */
+
+.admin-produtos {
+    display: grid;
+
+    gap: 18px;
+}
+
+.admin-card {
+    display: grid;
+
+    grid-template-columns:
+        190px
+        minmax(0, 1fr);
+
+    gap: 22px;
+
+    background: white;
+
+    border-radius: 14px;
+
+    padding: 18px;
+
+    box-shadow:
+        0 3px 14px rgba(0, 0, 0, .07);
+
+    border: 2px solid transparent;
+}
+
+.admin-card.produto-oferta {
+    border-color: #e7a52a;
+}
+
+
+/* IMAGEM */
+
+.admin-card-imagem {
+    height: 170px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #eef2ed;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+.admin-card-imagem img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+}
+
+
+/* CONTEÚDO */
+
+.admin-card-conteudo {
+    padding: 5px 0;
+}
+
+.admin-card h2 {
+    margin: 7px 0 12px;
+
+    color: #263326;
+}
+
+.admin-precos strong {
+    display: block;
+
+    color: #174a2b;
+
+    font-size: 22px;
+}
+
+.admin-precos span {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #d18c16;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   OFERTA ATIVA
+===================================================== */
+
+.oferta-ativa {
+    display: inline-block;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    background: #e7a52a;
+
+    color: #172817;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+.oferta-marcada {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 10px 13px;
+
+    border-radius: 8px;
+
+    background: #eaf5ec;
+
+    color: #174a2b;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   AÇÕES ADMIN
+===================================================== */
+
+.admin-acoes {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+.botao-editar,
+.botao-oferta,
+.botao-excluir {
+    border: 0;
+
+    border-radius: 8px;
+
+    padding: 10px 13px;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    text-decoration: none;
+}
+
+.botao-editar {
+    background: #174a2b;
+
+    color: white;
+}
+
+.botao-editar:hover {
+    background: #23653b;
+}
+
+.botao-oferta {
+    background: #e7a52a;
+
+    color: #172817;
+}
+
+.botao-oferta:hover {
+    background: #f1b83e;
+}
+
+.botao-excluir {
+    background: #f5e5e5;
+
+    color: #a32929;
+}
+
+.botao-excluir:hover {
+    background: #efd0d0;
+}
+
+
+/* =====================================================
+   FORMULÁRIO DE PRODUTO
+===================================================== */
+
+.formulario-produto {
+    max-width: 800px;
+
+    margin: auto;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 3px 18px rgba(0, 0, 0, .08);
+}
+
+.campo {
+    margin-bottom: 20px;
+}
+
+.campo label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #35523c;
+
+    font-weight: bold;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 1px solid #dce3dc;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    font-family: inherit;
+
+    font-size: 15px;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    border-color: #174a2b;
+}
+
+.campo textarea {
+    resize: vertical;
+}
+
+.campo small {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #7a8b7c;
+}
+
+.linha-formulario {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 18px;
+}
+
+
+/* FOTO ATUAL */
+
+.foto-atual {
+    margin-bottom: 20px;
+}
+
+.foto-atual p {
+    font-weight: bold;
+}
+
+.foto-atual img {
+    width: 180px;
+    height: 180px;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+
+    background: #eef2ed;
+}
+
+
+/* =====================================================
+   CELULAR
+===================================================== */
+
+@media (max-width: 700px) {
+
+    /* -------------------------------------------------
+       TOPO
+    ------------------------------------------------- */
+
+    .topo-conteudo {
+        min-height: 80px;
+
+        padding: 8px 14px;
+
+        gap: 10px;
+    }
+
+    .logo-principal {
+        width: 65px;
+        height: 60px;
+    }
+
+    .marca {
+        gap: 9px;
+    }
+
+    .nome-loja strong {
+        font-size: 17px;
+    }
+
+    .nome-loja span {
+        margin-top: 4px;
+
+        font-size: 11px;
+    }
+
+    .menu-topo {
+        gap: 6px;
+    }
+
+
+    /* -------------------------------------------------
+       ADMIN MOBILE
+    ------------------------------------------------- */
+
+    .link-admin {
+        width: 42px;
+        min-width: 42px;
+
+        padding: 0;
+
+        font-size: 0;
+    }
+
+    .link-admin::before {
+        content: "🔐";
+
+        font-size: 17px;
+    }
+
+
+    /* -------------------------------------------------
+       WHATSAPP MOBILE
+    ------------------------------------------------- */
+
+    .whatsapp-topo {
+        width: 42px;
+        min-width: 42px;
+
+        padding: 0;
+
+        font-size: 0;
+    }
+
+    .whatsapp-topo::before {
+        content: "💬";
+
+        font-size: 17px;
+    }
+
+
+    /* -------------------------------------------------
+       HERO
+    ------------------------------------------------- */
+
+    .hero-conteudo {
+        min-height: auto;
+
+        padding: 30px 20px;
+    }
+
+    .promocao-banner,
+    .promocao-padrao {
+        grid-template-columns: 1fr;
+
+        gap: 20px;
+    }
+
+    .promocao-imagem,
+    .promocao-padrao-imagem {
+        height: 220px;
+
+        order: -1;
+    }
+
+    .promocao-texto h1,
+    .promocao-padrao h1 {
+        font-size: 36px;
+    }
+
+    .promocao-texto p,
+    .promocao-padrao p {
+        font-size: 15px;
+    }
+
+    .preco-promocional {
+        font-size: 30px;
+    }
+
+
+    /* -------------------------------------------------
+       BUSCA
+    ------------------------------------------------- */
+
+    .busca {
+        flex-direction: column;
+    }
+
+    .busca button {
+        padding: 12px;
+    }
+
+
+    /* -------------------------------------------------
+       PRODUTOS
+    ------------------------------------------------- */
+
+    .titulo-secao {
+        align-items: flex-start;
+    }
+
+    .titulo-secao p {
+        display: none;
+    }
+
+    .produtos {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+    }
+
+    .imagem-produto {
+        height: 165px;
+    }
+
+    .card-conteudo {
+        padding: 13px;
+    }
+
+    .card h3 {
+        font-size: 16px;
+    }
+
+    .descricao {
+        font-size: 13px;
+    }
+
+    .preco {
+        font-size: 20px;
+    }
+
+    .preco-oferta {
+        font-size: 20px;
+    }
+
+    .botao-interesse {
+        font-size: 13px;
+
+        padding: 10px 5px;
+    }
+
+
+    /* -------------------------------------------------
+       CONTROLES DE OFERTA
+    ------------------------------------------------- */
+
+    .admin-oferta input {
+        font-size: 12px;
+    }
+
+
+    /* -------------------------------------------------
+       PAINEL ADMINISTRATIVO
+    ------------------------------------------------- */
+
+    .admin-area {
+        padding: 30px 14px 50px;
+    }
+
+    .admin-titulo {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .admin-titulo h1 {
+        font-size: 30px;
+    }
+
+    .admin-card {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-card-imagem {
+        height: 220px;
+    }
+
+    .linha-formulario {
+        grid-template-columns: 1fr;
+
+        gap: 0;
+    }
+
+    .formulario-produto {
+        padding: 20px;
+    }
+
+    .admin-acoes {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .admin-acoes form,
+    .botao-editar,
+    .botao-oferta,
+    .botao-excluir,
+    .oferta-marcada {
+        width: 100%;
+
+        text-align: center;
+    }
+
+}
+
+
+/* =====================================================
+   CELULAR PEQUENO
+===================================================== */
+
+@media (max-width: 430px) {
+
+    .logo-principal {
+        width: 55px;
+        height: 52px;
+    }
+
+    .nome-loja strong {
+        font-size: 15px;
+    }
+
+    .nome-loja span {
+        font-size: 10px;
+    }
+
+    .produtos {
+        grid-template-columns: 1fr 1fr;
+
+        gap: 9px;
+    }
+
+    .imagem-produto {
+        height: 145px;
+    }
+
+    .card-conteudo {
+        padding: 10px;
+    }
+
+    .card h3 {
+        font-size: 14px;
+    }
+
+    .descricao {
+        font-size: 12px;
+
+        min-height: auto;
+    }
+
+    .preco,
+    .preco-oferta {
+        font-size: 18px;
+    }
+
+    .selo-promocao {
+        top: 8px;
+        left: 8px;
+
+        padding: 5px 7px;
+
+        font-size: 9px;
+    }
+
+}

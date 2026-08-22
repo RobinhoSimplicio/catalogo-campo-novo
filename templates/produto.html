@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ produto.nome }} | {{ loja.nome }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topo">
+  <div class="marca">
+    <div class="logo">🛍️</div>
+    <div><h1>{{ loja.nome }}</h1><p>{{ loja.descricao }}</p></div>
+  </div>
+</header>
+
+<main class="detalhe">
+  <a class="voltar" href="{{ url_for('index') }}">← Voltar ao catálogo</a>
+  <div class="produto-detalhe">
+    <img src="{{ url_for('static', filename='img/' + produto.imagem) }}" alt="{{ produto.nome }}">
+    <div>
+      <h2>{{ produto.nome }}</h2>
+      <div class="preco grande">R$ {{ "%.2f"|format(produto.preco)|replace(".", ",") }}</div>
+      <p>{{ produto.descricao }}</p>
+      <a class="botao" href="{{ url_for('interesse', produto_id=produto.id) }}">Tenho interesse pelo WhatsApp</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

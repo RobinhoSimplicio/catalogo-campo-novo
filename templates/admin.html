@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Painel | {{ loja.nome }}</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f3;
+            color: #263326;
+        }
+
+
+        /* =====================================================
+           CABEÇALHO
+        ===================================================== */
+
+        header {
+            background: #1f5d35;
+            color: white;
+            padding: 20px;
+        }
+
+
+        .topo {
+            max-width: 1100px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        h1 {
+            margin: 0;
+        }
+
+
+        .subtitulo {
+            margin: 5px 0 0;
+            opacity: .85;
+        }
+
+
+        .acoes-topo {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+
+        .botao {
+            display: inline-block;
+
+            padding: 11px 16px;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+
+        .catalogo {
+            background: white;
+            color: #1f5d35;
+        }
+
+
+        .sair {
+            background: #c93636;
+            color: white;
+        }
+
+
+
+        /* =====================================================
+           CONTEÚDO
+        ===================================================== */
+
+        main {
+            max-width: 1100px;
+
+            margin: 30px auto;
+
+            padding: 0 20px;
+        }
+
+
+        .cabecalho-painel {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .novo {
+            background: #e9a62a;
+            color: #1f2b1f;
+
+            padding: 13px 18px;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+
+
+        /* =====================================================
+           MENSAGENS
+        ===================================================== */
+
+        .mensagem {
+            background: #dff2df;
+            color: #245c2d;
+
+            padding: 14px;
+
+            border-radius: 8px;
+
+            margin-bottom: 20px;
+
+            font-weight: bold;
+        }
+
+
+
+        /* =====================================================
+           LISTA DE PRODUTOS
+        ===================================================== */
+
+        .produtos {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(280px, 1fr)
+                );
+
+            gap: 20px;
+        }
+
+
+        .produto {
+            background: white;
+
+            border-radius: 14px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 3px 15px
+                rgba(0,0,0,.08);
+
+            position: relative;
+        }
+
+
+
+        /* =====================================================
+           IMAGEM
+        ===================================================== */
+
+        .imagem {
+            height: 210px;
+
+            background: #eef2ed;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .imagem img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: contain;
+        }
+
+
+        .sem-imagem {
+            color: #788278;
+
+            font-weight: bold;
+        }
+
+
+
+        /* =====================================================
+           CONTEÚDO DO PRODUTO
+        ===================================================== */
+
+        .conteudo {
+            padding: 18px;
+        }
+
+
+        .conteudo h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+
+        .categoria {
+            color: #5e715f;
+
+            font-size: 14px;
+        }
+
+
+        .preco {
+            color: #1f5d35;
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+            margin: 12px 0;
+        }
+
+
+
+        /* =====================================================
+           OFERTA ATUAL
+        ===================================================== */
+
+        .oferta-atual {
+            background: #fff7df;
+
+            border: 1px solid #e9a62a;
+
+            border-radius: 10px;
+
+            padding: 12px;
+
+            margin-bottom: 14px;
+        }
+
+
+        .oferta-titulo {
+            color: #8a5b00;
+
+            font-weight: bold;
+
+            margin-bottom: 6px;
+        }
+
+
+        .preco-normal {
+            color: #777;
+
+            text-decoration: line-through;
+
+            font-size: 14px;
+        }
+
+
+        .preco-oferta {
+            color: #c47a00;
+
+            font-size: 21px;
+
+            font-weight: bold;
+
+            margin-top: 3px;
+        }
+
+
+
+        /* =====================================================
+           ÁREA PARA DEFINIR OFERTA
+        ===================================================== */
+
+        .area-oferta {
+            background: #f1f7f1;
+
+            border: 1px solid #d8e6d8;
+
+            border-radius: 10px;
+
+            padding: 12px;
+
+            margin-bottom: 14px;
+        }
+
+
+        .titulo-oferta {
+            display: block;
+
+            color: #1f5d35;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+        }
+
+
+        .form-oferta {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+        }
+
+
+        .form-oferta input {
+            width: 100%;
+
+            padding: 11px;
+
+            border: 1px solid #cbd5cb;
+
+            border-radius: 7px;
+
+            font-size: 15px;
+
+            outline: none;
+        }
+
+
+        .form-oferta input:focus {
+            border-color: #1f5d35;
+
+            box-shadow:
+                0 0 0 2px
+                rgba(31,93,53,.12);
+        }
+
+
+        .botao-oferta {
+            width: 100%;
+
+            padding: 11px;
+
+            border: 0;
+
+            border-radius: 7px;
+
+            background: #e9a62a;
+
+            color: #1f2b1f;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            font-size: 14px;
+        }
+
+
+        .botao-oferta:hover {
+            filter: brightness(.95);
+        }
+
+
+        .botao-remover-oferta {
+            width: 100%;
+
+            padding: 10px;
+
+            border: 0;
+
+            border-radius: 7px;
+
+            background: #ffe2e2;
+
+            color: #a52d2d;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            margin-top: 9px;
+        }
+
+
+        .botao-remover-oferta:hover {
+            background: #ffd1d1;
+        }
+
+
+
+        /* =====================================================
+           BOTÕES
+        ===================================================== */
+
+        .botoes {
+            display: flex;
+
+            gap: 8px;
+
+            margin-top: 10px;
+        }
+
+
+        .editar,
+        .excluir {
+            flex: 1;
+
+            padding: 10px;
+
+            border-radius: 7px;
+
+            text-align: center;
+
+            font-weight: bold;
+
+            text-decoration: none;
+
+            border: 0;
+
+            cursor: pointer;
+
+            font-size: 14px;
+        }
+
+
+        .editar {
+            background: #e8efe8;
+
+            color: #1f5d35;
+        }
+
+
+        .editar:hover {
+            background: #dce9dc;
+        }
+
+
+        .excluir {
+            background: #ffe2e2;
+
+            color: #a52d2d;
+        }
+
+
+        .excluir:hover {
+            background: #ffd1d1;
+        }
+
+
+
+        /* =====================================================
+           PRODUTO QUE É A OFERTA ATUAL
+        ===================================================== */
+
+        .produto-em-oferta {
+            border: 2px solid #e9a62a;
+
+            box-shadow:
+                0 5px 20px
+                rgba(233,166,42,.18);
+        }
+
+
+        .selo-oferta {
+            position: absolute;
+
+            top: 12px;
+            left: 12px;
+
+            background: #e9a62a;
+
+            color: #1f2b1f;
+
+            padding: 7px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: bold;
+
+            z-index: 2;
+        }
+
+
+
+        /* =====================================================
+           VAZIO
+        ===================================================== */
+
+        .vazio {
+            background: white;
+
+            padding: 40px;
+
+            text-align: center;
+
+            border-radius: 12px;
+        }
+
+
+
+        /* =====================================================
+           RESPONSIVO
+        ===================================================== */
+
+        @media (max-width: 600px) {
+
+            .topo {
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+
+
+            .acoes-topo {
+                width: 100%;
+            }
+
+
+            .acoes-topo .botao {
+                flex: 1;
+
+                text-align: center;
+            }
+
+
+            .botoes {
+                flex-direction: column;
+            }
+
+
+            .editar,
+            .excluir {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     CABEÇALHO
+===================================================== -->
+
+<header>
+
+    <div class="topo">
+
+
+        <div>
+
+            <h1>
+                {{ loja.nome }}
+            </h1>
+
+            <p class="subtitulo">
+                Painel administrativo
+            </p>
+
+        </div>
+
+
+        <div class="acoes-topo">
+
+
+            <a
+                class="botao catalogo"
+                href="{{ url_for('index') }}"
+            >
+                🌐 Ver catálogo
+            </a>
+
+
+            <a
+                class="botao sair"
+                href="{{ url_for('logout') }}"
+            >
+                🚪 Sair
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     CONTEÚDO
+===================================================== -->
+
+<main>
+
+
+    <!-- MENSAGENS -->
+
+    {% with mensagens = get_flashed_messages() %}
+
+        {% if mensagens %}
+
+            {% for mensagem in mensagens %}
+
+                <div class="mensagem">
+                    {{ mensagem }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+
+    <!-- CABEÇALHO DO PAINEL -->
+
+    <div class="cabecalho-painel">
+
+
+        <div>
+
+            <h2>
+                Produtos
+            </h2>
+
+            <p>
+                Cadastre, edite, exclua produtos e
+                escolha a Oferta da Semana.
+            </p>
+
+        </div>
+
+
+        <a
+            class="novo"
+            href="{{ url_for('novo_produto') }}"
+        >
+            ➕ Novo produto
+        </a>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         PRODUTOS
+    ===================================================== -->
+
+    {% if produtos %}
+
+
+        <section class="produtos">
+
+
+            {% for produto in produtos %}
+
+
+                <article
+                    class="produto
+                    {% if produto.promocao %}
+                        produto-em-oferta
+                    {% endif %}"
+                >
+
+
+                    <!-- SELO -->
+
+                    {% if produto.promocao %}
+
+                        <span class="selo-oferta">
+                            🔥 OFERTA DA SEMANA
+                        </span>
+
+                    {% endif %}
+
+
+
+                    <!-- IMAGEM -->
+
+                    <div class="imagem">
+
+
+                        {% if produto.imagem %}
+
+
+                            <img
+                                src="{{ url_for(
+                                    'static',
+                                    filename='img/' + produto.imagem
+                                ) }}"
+                                alt="{{ produto.nome }}"
+                            >
+
+
+                        {% else %}
+
+
+                            <span class="sem-imagem">
+                                Sem imagem
+                            </span>
+
+
+                        {% endif %}
+
+
+                    </div>
+
+
+
+                    <!-- CONTEÚDO -->
+
+                    <div class="conteudo">
+
+
+                        <!-- NOME -->
+
+                        <h3>
+                            {{ produto.nome }}
+                        </h3>
+
+
+
+                        <!-- CATEGORIA -->
+
+                        {% if produto.categoria %}
+
+                            <div class="categoria">
+                                {{ produto.categoria }}
+                            </div>
+
+                        {% endif %}
+
+
+
+                        <!-- =================================================
+                             PREÇOS
+                        ================================================== -->
+
+
+                        {% if produto.promocao
+                              and produto.preco_promocional is not none %}
+
+
+                            <!-- PRODUTO EM OFERTA -->
+
+                            <div class="oferta-atual">
+
+
+                                <div class="oferta-titulo">
+                                    ⭐ Oferta atual
+                                </div>
+
+
+                                <div class="preco-normal">
+
+                                    De R$
+
+                                    {{ "%.2f"|format(
+                                        produto.preco
+                                    )|replace(".", ",") }}
+
+                                </div>
+
+
+                                <div class="preco-oferta">
+
+                                    Por R$
+
+                                    {{ "%.2f"|format(
+                                        produto.preco_promocional
+                                    )|replace(".", ",") }}
+
+                                </div>
+
+
+                                <!-- REMOVER OFERTA -->
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'remover_oferta',
+                                        produto_id=produto.id
+                                    ) }}"
+                                    onsubmit="return confirm(
+                                        'Deseja remover este produto da Oferta da Semana?'
+                                    );"
+                                >
+
+
+                                    <button
+                                        type="submit"
+                                        class="botao-remover-oferta"
+                                    >
+                                        ❌ Remover oferta
+                                    </button>
+
+
+                                </form>
+
+
+                            </div>
+
+
+                        {% else %}
+
+
+                            <!-- PREÇO NORMAL -->
+
+                            <div class="preco">
+
+                                R$
+
+                                {{ "%.2f"|format(
+                                    produto.preco
+                                )|replace(".", ",") }}
+
+                            </div>
+
+
+
+                            <!-- =================================================
+                                 DEFINIR OFERTA
+                            ================================================== -->
+
+                            <div class="area-oferta">
+
+
+                                <span class="titulo-oferta">
+                                    ⭐ Definir como Oferta da Semana
+                                </span>
+
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'definir_oferta',
+                                        produto_id=produto.id
+                                    ) }}"
+                                    class="form-oferta"
+                                >
+
+
+                                    <input
+                                        type="text"
+                                        name="preco_promocional"
+                                        placeholder="Ex.: 79,90"
+                                        inputmode="decimal"
+                                        required
+                                    >
+
+
+                                    <button
+                                        type="submit"
+                                        class="botao-oferta"
+                                    >
+                                        🔥 Colocar em oferta
+                                    </button>
+
+
+                                </form>
+
+
+                            </div>
+
+
+                        {% endif %}
+
+
+
+                        <!-- =================================================
+                             BOTÕES DE PRODUTO
+                        ================================================== -->
+
+                        <div class="botoes">
+
+
+                            <!-- EDITAR -->
+
+                            <a
+                                class="editar"
+                                href="{{ url_for(
+                                    'editar_produto',
+                                    produto_id=produto.id
+                                ) }}"
+                            >
+                                ✏️ Editar
+                            </a>
+
+
+
+                            <!-- EXCLUIR -->
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'excluir_produto',
+                                    produto_id=produto.id
+                                ) }}"
+                                style="flex:1"
+                                onsubmit="return confirm(
+                                    'Tem certeza que deseja excluir este produto?'
+                                );"
+                            >
+
+
+                                <button
+                                    class="excluir"
+                                    type="submit"
+                                    style="width:100%"
+                                >
+                                    🗑️ Excluir
+                                </button>
+
+
+                            </form>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </article>
+
+
+            {% endfor %}
+
+
+        </section>
+
+
+    {% else %}
+
+
+        <!-- =================================================
+             NENHUM PRODUTO
+        ================================================== -->
+
+        <div class="vazio">
+
+
+            <h3>
+                Nenhum produto cadastrado
+            </h3>
+
+
+            <p>
+                Clique em "Novo produto" para começar.
+            </p>
+
+
+        </div>
+
+
+    {% endif %}
+
+
+</main>
+
+
+</body>
+
+</html>

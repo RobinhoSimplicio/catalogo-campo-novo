@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>
+        {% if produto %}
+            Editar produto
+        {% else %}
+            Novo produto
+        {% endif %}
+        | {{ loja.nome }}
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f3;
+            color: #263326;
+        }
+
+        header {
+            background: #1f5d35;
+            color: white;
+            padding: 22px;
+        }
+
+        header div {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        main {
+            max-width: 750px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .formulario {
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(0,0,0,.08);
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd5cc;
+            border-radius: 7px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .foto-atual {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f1f4f0;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .foto-atual img {
+            max-width: 220px;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .upload {
+            margin-top: 10px;
+            padding: 20px;
+            background: #eef5ee;
+            border: 2px dashed #a9bea9;
+            border-radius: 10px;
+        }
+
+        .upload input {
+            background: white;
+        }
+
+        .dica {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #5d695d;
+        }
+
+        .botoes {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        button,
+        .botao {
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button {
+            background: #e9a62a;
+            color: #1f2b1f;
+        }
+
+        .cancelar {
+            background: #e8ece8;
+            color: #263326;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <div>
+
+        <h1>
+            {{ loja.nome }}
+        </h1>
+
+        <p>
+            Painel de gerenciamento
+        </p>
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <div class="formulario">
+
+        <h2>
+
+            {% if produto %}
+                Editar produto
+            {% else %}
+                Cadastrar produto
+            {% endif %}
+
+        </h2>
+
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+            <label for="nome">
+                Nome do produto
+            </label>
+
+            <input
+                type="text"
+                id="nome"
+                name="nome"
+                required
+                value="{{ produto.nome if produto else '' }}"
+                placeholder="Ex.: Semente de milho"
+            >
+
+
+            <label for="preco">
+                Preço
+            </label>
+
+            <input
+                type="text"
+                id="preco"
+                name="preco"
+                required
+                value="{{ produto.preco if produto else '' }}"
+                placeholder="Ex.: 129,90"
+            >
+
+
+            <label for="categoria">
+                Categoria
+            </label>
+
+            <input
+                type="text"
+                id="categoria"
+                name="categoria"
+                value="{{ produto.categoria if produto else '' }}"
+                placeholder="Ex.: Sementes"
+            >
+
+
+            <label for="descricao">
+                Descrição
+            </label>
+
+            <textarea
+                id="descricao"
+                name="descricao"
+                placeholder="Descreva o produto..."
+            >{{ produto.descricao if produto else '' }}</textarea>
+
+
+            <label>
+                Foto do produto
+            </label>
+
+
+            {% if produto and produto.imagem %}
+
+                <div class="foto-atual">
+
+                    <p>
+                        <strong>Foto atual</strong>
+                    </p>
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='img/' + produto.imagem
+                        ) }}"
+                        alt="{{ produto.nome }}"
+                    >
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="upload">
+
+                <input
+                    type="file"
+                    name="foto"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                >
+
+                <div class="dica">
+
+                    Formatos aceitos:
+                    JPG, JPEG, PNG, WEBP ou GIF.
+
+                    <br>
+
+                    Tamanho máximo:
+                    5 MB.
+
+                    {% if produto %}
+                        <br>
+                        Se não escolher uma nova foto,
+                        a foto atual será mantida.
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="botoes">
+
+                <button type="submit">
+
+                    {% if produto %}
+                        Salvar alterações
+                    {% else %}
+                        Cadastrar produto
+                    {% endif %}
+
+                </button>
+
+
+                <a
+                    class="botao cancelar"
+                    href="{{ url_for('admin') }}"
+                >
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+</body>
+
+</html>
