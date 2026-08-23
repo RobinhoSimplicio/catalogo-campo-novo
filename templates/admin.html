@@ -716,34 +716,60 @@
 
                     <!-- IMAGEM -->
 
-                    <div class="imagem">
+<div class="imagem">
 
+    {% if produto.imagem %}
 
-                        {% if produto.imagem %}
+        {% if produto.imagem.startswith('http') %}
 
+            <!-- IMAGEM DO SUPABASE -->
 
-                            <img
-                                src="{{ url_for(
-                                    'static',
-                                    filename='img/' + produto.imagem
-                                ) }}"
-                                alt="{{ produto.nome }}"
-                            >
+            <img
+                src="{{ produto.imagem }}"
+                alt="{{ produto.nome }}"
+                loading="lazy"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            >
 
+            <span
+                class="sem-imagem"
+                style="display:none;"
+            >
+                🖼️ Imagem indisponível
+            </span>
 
-                        {% else %}
+        {% else %}
 
+            <!-- IMAGEM LOCAL -->
 
-                            <span class="sem-imagem">
-                                Sem imagem
-                            </span>
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='img/' + produto.imagem
+                ) }}"
+                alt="{{ produto.nome }}"
+                loading="lazy"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            >
 
+            <span
+                class="sem-imagem"
+                style="display:none;"
+            >
+                🖼️ Imagem indisponível
+            </span>
 
-                        {% endif %}
+        {% endif %}
 
+    {% else %}
 
-                    </div>
+        <span class="sem-imagem">
+            Sem imagem
+        </span>
 
+    {% endif %}
+
+</div>
 
 
                     <!-- CONTEÚDO -->
