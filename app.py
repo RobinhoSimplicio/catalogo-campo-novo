@@ -1,6 +1,8 @@
 import os
-import sqlite3
 from urllib.parse import quote
+from uuid import uuid4
+
+import sqlite3
 
 from flask import (
     Flask,
@@ -11,8 +13,8 @@ from flask import (
     flash,
     session,
 )
-from werkzeug.utils import secure_filename
 
+from werkzeug.utils import secure_filename
 
 # =====================================================
 # CONFIGURAÇÃO
@@ -20,9 +22,14 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-app.secret_key = "campo-novo-agrosolucoes"
+app.secret_key = os.environ.get(
+    "FLASK_SECRET_KEY",
+    "campo-novo-agrosolucoes"
+)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
 DATABASE = os.path.join(
     BASE_DIR,
@@ -37,9 +44,35 @@ UPLOAD_FOLDER = os.path.join(
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-app.config["MAX_CONTENT_LENGTH"] = (
-    5 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+
+
+# =====================================================
+# SUPABASE
+# =====================================================
+
+SUPABASE_URL = os.environ.get(
+    "SUPABASE_URL"
 )
+
+SUPABASE_KEY = os.environ.get(
+    "SUPABASE_KEY"
+)
+
+SUPABASE_ATIVO = bool(
+    SUPABASE_URL and SUPABASE_KEY
+)
+
+supabase = None
+
+if SUPABASE_ATIVO:
+
+    from supabase import create_client
+
+    supabase = create_client(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    )
 
 
 # =====================================================
@@ -63,7 +96,7 @@ ADMIN_SENHA = "CampoNovo@2026"
 
 
 # =====================================================
-# EXTENSÕES DE IMAGEM
+# EXTENSÕES
 # =====================================================
 
 EXTENSOES_PERMITIDAS = {
@@ -76,10 +109,10 @@ EXTENSOES_PERMITIDAS = {
 
 
 # =====================================================
-# BANCO DE DADOS
+# SQLITE LOCAL
 # =====================================================
 
-def conectar():
+def conectar_sqlite():
 
     conexao = sqlite3.connect(
         DATABASE
@@ -90,8 +123,46 @@ def conectar():
     return conexao
 
 
+def criar_banco_local():
+
+    os.makedirs(
+        UPLOAD_FOLDER,
+        exist_ok=True
+    )
+
+    conexao = conectar_sqlite()
+
+    conexao.execute(
+        """
+        CREATE TABLE IF NOT EXISTS produtos (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            nome TEXT NOT NULL,
+
+            preco REAL NOT NULL DEFAULT 0,
+
+            descricao TEXT DEFAULT '',
+
+            categoria TEXT DEFAULT '',
+
+            imagem TEXT DEFAULT '',
+
+            promocao INTEGER NOT NULL DEFAULT 0,
+
+            preco_promocional REAL DEFAULT NULL
+
+        )
+        """
+    )
+
+    conexao.commit()
+
+    conexao.close()
+
+
 # =====================================================
-# VERIFICAR EXTENSÃO
+# EXTENSÃO
 # =====================================================
 
 def extensao_permitida(nome):
@@ -100,9 +171,30 @@ def extensao_permitida(nome):
         nome
     )[1].lower()
 
-    return (
-        extensao
-        in EXTENSOES_PERMITIDAS
+    return extensao in EXTENSOES_PERMITIDAS
+
+
+# =====================================================
+# MIME
+# =====================================================
+
+def descobrir_mime(nome):
+
+    extensao = os.path.splitext(
+        nome
+    )[1].lower()
+
+    tipos = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+    }
+
+    return tipos.get(
+        extensao,
+        "application/octet-stream"
     )
 
 
@@ -133,175 +225,124 @@ def salvar_foto(foto):
 
     nome_arquivo = (
         f"produto_"
-        f"{os.urandom(8).hex()}"
+        f"{uuid4().hex}"
         f"{extensao}"
     )
+
+    # -------------------------------------------------
+    # SUPABASE
+    # -------------------------------------------------
+
+    if SUPABASE_ATIVO:
+
+        try:
+
+            conteudo = foto.read()
+
+            caminho_storage = (
+                f"produtos/{nome_arquivo}"
+            )
+
+            supabase.storage \
+                .from_("produtos") \
+                .upload(
+                    caminho_storage,
+                    conteudo,
+                    {
+                        "content-type":
+                            descobrir_mime(
+                                nome_arquivo
+                            ),
+                        "upsert": "true",
+                    }
+                )
+
+            url_publica = (
+                supabase.storage
+                .from_("produtos")
+                .get_public_url(
+                    caminho_storage
+                )
+            )
+
+            return url_publica
+
+        except Exception as erro:
+
+            print(
+                "Erro ao enviar imagem "
+                "para o Supabase:",
+                erro
+            )
+
+            return ""
+
+
+    # -------------------------------------------------
+    # SQLITE / LOCAL
+    # -------------------------------------------------
 
     caminho = os.path.join(
         app.config["UPLOAD_FOLDER"],
         nome_arquivo
     )
 
-    foto.save(caminho)
+    try:
+
+        foto.save(caminho)
+
+    except Exception as erro:
+
+        print(
+            "Erro ao salvar imagem:",
+            erro
+        )
+
+        return ""
 
     return nome_arquivo
 
 
 # =====================================================
-# CRIAR / ATUALIZAR BANCO
+# EXCLUIR FOTO DO SUPABASE
 # =====================================================
 
-def criar_banco():
+def excluir_foto_storage(url):
 
-    os.makedirs(
-        UPLOAD_FOLDER,
-        exist_ok=True
-    )
+    if not SUPABASE_ATIVO:
+        return
 
-    conexao = conectar()
+    if not url:
+        return
 
-    # -------------------------------------------------
-    # TABELA DE PRODUTOS
-    # -------------------------------------------------
+    try:
 
-    conexao.execute(
-        """
-        CREATE TABLE IF NOT EXISTS produtos (
+        marcador = "/storage/v1/object/public/produtos/"
 
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+        if marcador not in url:
+            return
 
-            nome TEXT NOT NULL,
+        caminho = url.split(
+            marcador,
+            1
+        )[1]
 
-            preco REAL NOT NULL DEFAULT 0,
-
-            descricao TEXT DEFAULT '',
-
-            categoria TEXT DEFAULT '',
-
-            imagem TEXT DEFAULT '',
-
-            promocao INTEGER NOT NULL DEFAULT 0,
-
-            preco_promocional REAL DEFAULT NULL
-
-        )
-        """
-    )
-
-    conexao.commit()
-
-
-    # -------------------------------------------------
-    # MIGRAÇÃO DE BANCO ANTIGO
-    # -------------------------------------------------
-
-    colunas = conexao.execute(
-        "PRAGMA table_info(produtos)"
-    ).fetchall()
-
-    nomes_colunas = {
-        coluna["name"]
-        for coluna in colunas
-    }
-
-
-    if "promocao" not in nomes_colunas:
-
-        conexao.execute(
-            """
-            ALTER TABLE produtos
-            ADD COLUMN promocao
-            INTEGER NOT NULL DEFAULT 0
-            """
-        )
-
-
-    if "preco_promocional" not in nomes_colunas:
-
-        conexao.execute(
-            """
-            ALTER TABLE produtos
-            ADD COLUMN preco_promocional
-            REAL DEFAULT NULL
-            """
-        )
-
-
-    conexao.commit()
-
-
-    # -------------------------------------------------
-    # PRODUTOS DE EXEMPLO
-    # -------------------------------------------------
-
-    quantidade = conexao.execute(
-        "SELECT COUNT(*) FROM produtos"
-    ).fetchone()[0]
-
-
-    if quantidade == 0:
-
-        produtos = [
-
-            (
-                "Produto Exemplo 1",
-                49.90,
-                "Descrição do produto.",
-                "Diversos",
-                "produto1.svg",
-                0,
-                None,
-            ),
-
-            (
-                "Produto Exemplo 2",
-                79.90,
-                "Descrição do produto.",
-                "Diversos",
-                "produto2.svg",
-                0,
-                None,
-            ),
-
-            (
-                "Produto Exemplo 3",
-                99.90,
-                "Descrição do produto.",
-                "Diversos",
-                "produto3.svg",
-                0,
-                None,
-            ),
-
-        ]
-
-
-        conexao.executemany(
-            """
-            INSERT INTO produtos
-            (
-                nome,
-                preco,
-                descricao,
-                categoria,
-                imagem,
-                promocao,
-                preco_promocional
+        supabase.storage \
+            .from_("produtos") \
+            .remove(
+                [caminho]
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            produtos
+
+    except Exception as erro:
+
+        print(
+            "Erro ao excluir imagem:",
+            erro
         )
 
 
-        conexao.commit()
-
-
-    conexao.close()
-
-
 # =====================================================
-# VERIFICAR ADMINISTRADOR
+# AUTENTICAÇÃO
 # =====================================================
 
 def administrador_logado():
@@ -329,7 +370,6 @@ def login():
             url_for("admin")
         )
 
-
     if request.method == "POST":
 
         usuario = request.form.get(
@@ -342,7 +382,6 @@ def login():
             ""
         )
 
-
         if (
             usuario.upper()
             == ADMIN_USUARIO
@@ -350,17 +389,17 @@ def login():
             == ADMIN_SENHA
         ):
 
-            session["administrador"] = True
+            session[
+                "administrador"
+            ] = True
 
             return redirect(
                 url_for("admin")
             )
 
-
         flash(
             "Usuário ou senha incorretos."
         )
-
 
     return render_template(
         "login.html",
@@ -397,109 +436,191 @@ def index():
         ""
     ).strip()
 
-
     categoria = request.args.get(
         "categoria",
         ""
     ).strip()
 
 
-    conexao = conectar()
+    # =================================================
+    # SUPABASE
+    # =================================================
 
+    if SUPABASE_ATIVO:
 
-    sql = """
-        SELECT *
-        FROM produtos
-        WHERE 1=1
-    """
+        consulta = (
+            supabase
+            .table("produtos")
+            .select("*")
+        )
 
+        if busca:
 
-    parametros = []
-
-
-    # -------------------------------------------------
-    # BUSCA
-    # -------------------------------------------------
-
-    if busca:
-
-        sql += """
-            AND (
-                nome LIKE ?
-                OR descricao LIKE ?
-                OR categoria LIKE ?
+            termo = (
+                f"%{busca}%"
             )
-        """
 
-        termo = f"%{busca}%"
+            consulta = consulta.or_(
+                f"nome.ilike.{termo},"
+                f"descricao.ilike.{termo},"
+                f"categoria.ilike.{termo}"
+            )
 
+        if categoria:
 
-        parametros.extend(
-            [
-                termo,
-                termo,
-                termo,
-            ]
+            consulta = consulta.eq(
+                "categoria",
+                categoria
+            )
+
+        resultado = (
+            consulta
+            .order(
+                "nome"
+            )
+            .execute()
+        )
+
+        produtos = (
+            resultado.data
+            or []
         )
 
 
-    # -------------------------------------------------
-    # CATEGORIA
-    # -------------------------------------------------
+        resultado_categorias = (
+            supabase
+            .table("produtos")
+            .select("categoria")
+            .neq("categoria", "")
+            .execute()
+        )
 
-    if categoria:
+        categorias_lista = [
+            item["categoria"]
+            for item
+            in (
+                resultado_categorias.data
+                or []
+            )
+            if item.get("categoria")
+        ]
+
+        categorias = [
+            {"categoria": categoria}
+            for categoria
+            in sorted(
+                set(categorias_lista)
+            )
+        ]
+
+
+        resultado_promocao = (
+            supabase
+            .table("produtos")
+            .select("*")
+            .eq(
+                "promocao",
+                True
+            )
+            .not_.is_(
+                "preco_promocional",
+                "null"
+            )
+            .order(
+                "id",
+                desc=True
+            )
+            .limit(1)
+            .execute()
+        )
+
+        promocao = (
+            resultado_promocao.data[0]
+            if resultado_promocao.data
+            else None
+        )
+
+
+    # =================================================
+    # SQLITE LOCAL
+    # =================================================
+
+    else:
+
+        criar_banco_local()
+
+        conexao = conectar_sqlite()
+
+        sql = """
+            SELECT *
+            FROM produtos
+            WHERE 1=1
+        """
+
+        parametros = []
+
+        if busca:
+
+            sql += """
+                AND (
+                    nome LIKE ?
+                    OR descricao LIKE ?
+                    OR categoria LIKE ?
+                )
+            """
+
+            termo = (
+                f"%{busca}%"
+            )
+
+            parametros.extend(
+                [
+                    termo,
+                    termo,
+                    termo,
+                ]
+            )
+
+        if categoria:
+
+            sql += """
+                AND categoria = ?
+            """
+
+            parametros.append(
+                categoria
+            )
 
         sql += """
-            AND categoria = ?
+            ORDER BY nome
         """
 
-        parametros.append(
-            categoria
-        )
+        produtos = conexao.execute(
+            sql,
+            parametros
+        ).fetchall()
 
+        categorias = conexao.execute(
+            """
+            SELECT DISTINCT categoria
+            FROM produtos
+            WHERE categoria != ''
+            ORDER BY categoria
+            """
+        ).fetchall()
 
-    sql += """
-        ORDER BY nome
-    """
+        promocao = conexao.execute(
+            """
+            SELECT *
+            FROM produtos
+            WHERE promocao = 1
+            AND preco_promocional IS NOT NULL
+            ORDER BY id DESC
+            LIMIT 1
+            """
+        ).fetchone()
 
-
-    produtos = conexao.execute(
-        sql,
-        parametros
-    ).fetchall()
-
-
-    # -------------------------------------------------
-    # CATEGORIAS
-    # -------------------------------------------------
-
-    categorias = conexao.execute(
-        """
-        SELECT DISTINCT categoria
-        FROM produtos
-        WHERE categoria != ''
-        ORDER BY categoria
-        """
-    ).fetchall()
-
-
-    # -------------------------------------------------
-    # OFERTA DA SEMANA
-    # -------------------------------------------------
-
-    promocao = conexao.execute(
-        """
-        SELECT *
-        FROM produtos
-        WHERE promocao = 1
-        AND preco_promocional IS NOT NULL
-        ORDER BY id DESC
-        LIMIT 1
-        """
-    ).fetchone()
-
-
-    conexao.close()
+        conexao.close()
 
 
     return render_template(
@@ -530,21 +651,40 @@ def index():
 )
 def produto(produto_id):
 
-    conexao = conectar()
+    if SUPABASE_ATIVO:
 
+        resultado = (
+            supabase
+            .table("produtos")
+            .select("*")
+            .eq(
+                "id",
+                produto_id
+            )
+            .limit(1)
+            .execute()
+        )
 
-    item = conexao.execute(
-        """
-        SELECT *
-        FROM produtos
-        WHERE id = ?
-        """,
-        (produto_id,)
-    ).fetchone()
+        item = (
+            resultado.data[0]
+            if resultado.data
+            else None
+        )
 
+    else:
 
-    conexao.close()
+        conexao = conectar_sqlite()
 
+        item = conexao.execute(
+            """
+            SELECT *
+            FROM produtos
+            WHERE id = ?
+            """,
+            (produto_id,)
+        ).fetchone()
+
+        conexao.close()
 
     if not item:
 
@@ -552,7 +692,6 @@ def produto(produto_id):
             "Produto não encontrado",
             404
         )
-
 
     return render_template(
         "produto.html",
@@ -564,7 +703,7 @@ def produto(produto_id):
 
 
 # =====================================================
-# INTERESSE PELO PRODUTO
+# INTERESSE
 # =====================================================
 
 @app.route(
@@ -572,33 +711,46 @@ def produto(produto_id):
 )
 def interesse(produto_id):
 
-    conexao = conectar()
+    if SUPABASE_ATIVO:
 
+        resultado = (
+            supabase
+            .table("produtos")
+            .select("*")
+            .eq(
+                "id",
+                produto_id
+            )
+            .limit(1)
+            .execute()
+        )
 
-    item = conexao.execute(
-        """
-        SELECT *
-        FROM produtos
-        WHERE id = ?
-        """,
-        (produto_id,)
-    ).fetchone()
+        item = (
+            resultado.data[0]
+            if resultado.data
+            else None
+        )
 
+    else:
 
-    conexao.close()
+        conexao = conectar_sqlite()
 
+        item = conexao.execute(
+            """
+            SELECT *
+            FROM produtos
+            WHERE id = ?
+            """,
+            (produto_id,)
+        ).fetchone()
+
+        conexao.close()
 
     if not item:
 
         return redirect(
             url_for("index")
         )
-
-
-    # -------------------------------------------------
-    # SE ESTIVER EM PROMOÇÃO,
-    # USA O PREÇO PROMOCIONAL
-    # -------------------------------------------------
 
     if (
         item["promocao"]
@@ -614,12 +766,13 @@ def interesse(produto_id):
 
         preco_usado = item["preco"]
 
-
     preco_formatado = (
-        f"{preco_usado:.2f}"
-        .replace(".", ",")
+        f"{float(preco_usado):.2f}"
+        .replace(
+            ".",
+            ","
+        )
     )
-
 
     mensagem = (
         f"Olá! Tenho interesse "
@@ -628,19 +781,17 @@ def interesse(produto_id):
         f"- R$ {preco_formatado}"
     )
 
-
     link = (
         f"https://wa.me/"
         f"{LOJA['whatsapp']}"
         f"?text={quote(mensagem)}"
     )
 
-
     return redirect(link)
 
 
 # =====================================================
-# PAINEL ADMINISTRATIVO
+# ADMIN
 # =====================================================
 
 @app.route("/admin")
@@ -652,21 +803,39 @@ def admin():
             url_for("login")
         )
 
+    if SUPABASE_ATIVO:
 
-    conexao = conectar()
+        resultado = (
+            supabase
+            .table("produtos")
+            .select("*")
+            .order(
+                "id",
+                desc=True
+            )
+            .execute()
+        )
 
+        produtos = (
+            resultado.data
+            or []
+        )
 
-    produtos = conexao.execute(
-        """
-        SELECT *
-        FROM produtos
-        ORDER BY id DESC
-        """
-    ).fetchall()
+    else:
 
+        criar_banco_local()
 
-    conexao.close()
+        conexao = conectar_sqlite()
 
+        produtos = conexao.execute(
+            """
+            SELECT *
+            FROM produtos
+            ORDER BY id DESC
+            """
+        ).fetchall()
+
+        conexao.close()
 
     return render_template(
         "admin.html",
@@ -693,7 +862,6 @@ def novo_produto():
             url_for("login")
         )
 
-
     if request.method == "POST":
 
         nome = request.form.get(
@@ -701,29 +869,24 @@ def novo_produto():
             ""
         ).strip()
 
-
         preco = request.form.get(
             "preco",
             "0"
         ).strip()
-
 
         descricao = request.form.get(
             "descricao",
             ""
         ).strip()
 
-
         categoria = request.form.get(
             "categoria",
             ""
         ).strip()
 
-
         foto = request.files.get(
             "foto"
         )
-
 
         if not nome:
 
@@ -734,7 +897,6 @@ def novo_produto():
             return redirect(
                 url_for("novo_produto")
             )
-
 
         try:
 
@@ -755,9 +917,7 @@ def novo_produto():
                 url_for("novo_produto")
             )
 
-
         imagem = ""
-
 
         if foto and foto.filename:
 
@@ -765,59 +925,95 @@ def novo_produto():
                 foto
             )
 
-
             if not imagem:
 
                 flash(
-                    "Formato de imagem inválido."
+                    "Não foi possível salvar a imagem."
                 )
 
                 return redirect(
                     url_for("novo_produto")
                 )
 
+        if SUPABASE_ATIVO:
 
-        conexao = conectar()
+            try:
 
+                supabase \
+                    .table("produtos") \
+                    .insert(
+                        {
+                            "nome": nome,
+                            "preco": preco,
+                            "descricao": descricao,
+                            "categoria": categoria,
+                            "imagem": imagem,
+                            "promocao": False,
+                            "preco_promocional": None,
+                        }
+                    ) \
+                    .execute()
 
-        conexao.execute(
-            """
-            INSERT INTO produtos
-            (
-                nome,
-                preco,
-                descricao,
-                categoria,
-                imagem,
-                promocao,
-                preco_promocional
+            except Exception as erro:
+
+                print(
+                    "Erro ao cadastrar produto:",
+                    erro
+                )
+
+                if imagem:
+                    excluir_foto_storage(
+                        imagem
+                    )
+
+                flash(
+                    "Erro ao cadastrar produto."
+                )
+
+                return redirect(
+                    url_for("novo_produto")
+                )
+
+        else:
+
+            criar_banco_local()
+
+            conexao = conectar_sqlite()
+
+            conexao.execute(
+                """
+                INSERT INTO produtos
+                (
+                    nome,
+                    preco,
+                    descricao,
+                    categoria,
+                    imagem,
+                    promocao,
+                    preco_promocional
+                )
+                VALUES (?, ?, ?, ?, ?, 0, NULL)
+                """,
+                (
+                    nome,
+                    preco,
+                    descricao,
+                    categoria,
+                    imagem,
+                )
             )
-            VALUES (?, ?, ?, ?, ?, 0, NULL)
-            """,
-            (
-                nome,
-                preco,
-                descricao,
-                categoria,
-                imagem,
-            )
-        )
 
+            conexao.commit()
 
-        conexao.commit()
-
-        conexao.close()
-
+            conexao.close()
 
         flash(
             "Produto cadastrado com sucesso!"
         )
 
-
         return redirect(
             url_for("admin")
         )
-
 
     return render_template(
         "form_produto.html",
@@ -844,29 +1040,49 @@ def editar_produto(produto_id):
             url_for("login")
         )
 
+    if SUPABASE_ATIVO:
 
-    conexao = conectar()
+        resultado = (
+            supabase
+            .table("produtos")
+            .select("*")
+            .eq(
+                "id",
+                produto_id
+            )
+            .limit(1)
+            .execute()
+        )
 
+        produto = (
+            resultado.data[0]
+            if resultado.data
+            else None
+        )
 
-    produto = conexao.execute(
-        """
-        SELECT *
-        FROM produtos
-        WHERE id = ?
-        """,
-        (produto_id,)
-    ).fetchone()
+    else:
 
+        criar_banco_local()
 
-    if not produto:
+        conexao = conectar_sqlite()
+
+        produto = conexao.execute(
+            """
+            SELECT *
+            FROM produtos
+            WHERE id = ?
+            """,
+            (produto_id,)
+        ).fetchone()
 
         conexao.close()
+
+    if not produto:
 
         return (
             "Produto não encontrado",
             404
         )
-
 
     if request.method == "POST":
 
@@ -875,29 +1091,24 @@ def editar_produto(produto_id):
             ""
         ).strip()
 
-
         preco = request.form.get(
             "preco",
             "0"
         ).strip()
-
 
         descricao = request.form.get(
             "descricao",
             ""
         ).strip()
 
-
         categoria = request.form.get(
             "categoria",
             ""
         ).strip()
 
-
         foto = request.files.get(
             "foto"
         )
-
 
         if not nome:
 
@@ -905,15 +1116,12 @@ def editar_produto(produto_id):
                 "Informe o nome do produto."
             )
 
-            conexao.close()
-
             return redirect(
                 url_for(
                     "editar_produto",
                     produto_id=produto_id
                 )
             )
-
 
         try:
 
@@ -930,8 +1138,6 @@ def editar_produto(produto_id):
                 "Informe um preço válido."
             )
 
-            conexao.close()
-
             return redirect(
                 url_for(
                     "editar_produto",
@@ -939,9 +1145,12 @@ def editar_produto(produto_id):
                 )
             )
 
+        imagem = produto.get(
+            "imagem",
+            ""
+        )
 
-        imagem = produto["imagem"]
-
+        imagem_antiga = imagem
 
         if foto and foto.filename:
 
@@ -949,14 +1158,11 @@ def editar_produto(produto_id):
                 foto
             )
 
-
             if not nova_imagem:
 
                 flash(
-                    "Formato de imagem inválido."
+                    "Não foi possível salvar a nova imagem."
                 )
-
-                conexao.close()
 
                 return redirect(
                     url_for(
@@ -965,51 +1171,105 @@ def editar_produto(produto_id):
                     )
                 )
 
-
             imagem = nova_imagem
 
+        if SUPABASE_ATIVO:
 
-        conexao.execute(
-            """
-            UPDATE produtos
+            try:
 
-            SET
-                nome = ?,
-                preco = ?,
-                descricao = ?,
-                categoria = ?,
-                imagem = ?
+                supabase \
+                    .table("produtos") \
+                    .update(
+                        {
+                            "nome": nome,
+                            "preco": preco,
+                            "descricao": descricao,
+                            "categoria": categoria,
+                            "imagem": imagem,
+                        }
+                    ) \
+                    .eq(
+                        "id",
+                        produto_id
+                    ) \
+                    .execute()
 
-            WHERE id = ?
-            """,
-            (
-                nome,
-                preco,
-                descricao,
-                categoria,
-                imagem,
-                produto_id,
+                if (
+                    imagem != imagem_antiga
+                    and imagem_antiga
+                ):
+
+                    excluir_foto_storage(
+                        imagem_antiga
+                    )
+
+            except Exception as erro:
+
+                print(
+                    "Erro ao editar produto:",
+                    erro
+                )
+
+                if (
+                    imagem != imagem_antiga
+                    and imagem
+                ):
+
+                    excluir_foto_storage(
+                        imagem
+                    )
+
+                flash(
+                    "Erro ao atualizar produto."
+                )
+
+                return redirect(
+                    url_for(
+                        "editar_produto",
+                        produto_id=produto_id
+                    )
+                )
+
+        else:
+
+            criar_banco_local()
+
+            conexao = conectar_sqlite()
+
+            conexao.execute(
+                """
+                UPDATE produtos
+
+                SET
+                    nome = ?,
+                    preco = ?,
+                    descricao = ?,
+                    categoria = ?,
+                    imagem = ?
+
+                WHERE id = ?
+                """,
+                (
+                    nome,
+                    preco,
+                    descricao,
+                    categoria,
+                    imagem,
+                    produto_id,
+                )
             )
-        )
 
+            conexao.commit()
 
-        conexao.commit()
-
-        conexao.close()
-
+            conexao.close()
 
         flash(
             "Produto atualizado com sucesso!"
         )
 
-
         return redirect(
             url_for("admin")
         )
-
-
-    conexao.close()
-
 
     return render_template(
         "form_produto.html",
@@ -1036,60 +1296,96 @@ def excluir_produto(produto_id):
             url_for("login")
         )
 
+    if SUPABASE_ATIVO:
 
-    conexao = conectar()
-
-
-    produto = conexao.execute(
-        """
-        SELECT imagem
-        FROM produtos
-        WHERE id = ?
-        """,
-        (produto_id,)
-    ).fetchone()
-
-
-    conexao.execute(
-        """
-        DELETE FROM produtos
-        WHERE id = ?
-        """,
-        (produto_id,)
-    )
-
-
-    conexao.commit()
-
-    conexao.close()
-
-
-    if (
-        produto
-        and produto["imagem"]
-    ):
-
-        caminho = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            produto["imagem"]
+        resultado = (
+            supabase
+            .table("produtos")
+            .select("imagem")
+            .eq(
+                "id",
+                produto_id
+            )
+            .limit(1)
+            .execute()
         )
 
+        produto = (
+            resultado.data[0]
+            if resultado.data
+            else None
+        )
 
-        if os.path.isfile(caminho):
+        (
+            supabase
+            .table("produtos")
+            .delete()
+            .eq(
+                "id",
+                produto_id
+            )
+            .execute()
+        )
 
-            try:
+        if produto:
 
-                os.remove(caminho)
+            imagem = produto.get(
+                "imagem"
+            )
 
-            except OSError:
+            if imagem:
 
-                pass
+                excluir_foto_storage(
+                    imagem
+                )
 
+    else:
+
+        criar_banco_local()
+
+        conexao = conectar_sqlite()
+
+        produto = conexao.execute(
+            """
+            SELECT imagem
+            FROM produtos
+            WHERE id = ?
+            """,
+            (produto_id,)
+        ).fetchone()
+
+        conexao.execute(
+            """
+            DELETE FROM produtos
+            WHERE id = ?
+            """,
+            (produto_id,)
+        )
+
+        conexao.commit()
+
+        conexao.close()
+
+        if (
+            produto
+            and produto["imagem"]
+        ):
+
+            caminho = os.path.join(
+                app.config["UPLOAD_FOLDER"],
+                produto["imagem"]
+            )
+
+            if os.path.isfile(caminho):
+
+                try:
+                    os.remove(caminho)
+                except OSError:
+                    pass
 
     flash(
         "Produto excluído com sucesso!"
     )
-
 
     return redirect(
         url_for("admin")
@@ -1097,7 +1393,7 @@ def excluir_produto(produto_id):
 
 
 # =====================================================
-# DEFINIR OFERTA DA SEMANA
+# OFERTA DA SEMANA
 # =====================================================
 
 @app.route(
@@ -1105,10 +1401,6 @@ def excluir_produto(produto_id):
     methods=["POST"]
 )
 def definir_oferta(produto_id):
-
-    # -------------------------------------------------
-    # PROTEÇÃO NO SERVIDOR
-    # -------------------------------------------------
 
     if not administrador_logado():
 
@@ -1120,16 +1412,10 @@ def definir_oferta(produto_id):
             url_for("login")
         )
 
-
     preco_promocional = request.form.get(
         "preco_promocional",
         ""
     ).strip()
-
-
-    # -------------------------------------------------
-    # CONVERTER PREÇO
-    # -------------------------------------------------
 
     try:
 
@@ -1150,7 +1436,6 @@ def definir_oferta(produto_id):
             url_for("admin")
         )
 
-
     if preco_promocional <= 0:
 
         flash(
@@ -1161,102 +1446,155 @@ def definir_oferta(produto_id):
             url_for("admin")
         )
 
+    if SUPABASE_ATIVO:
 
-    conexao = conectar()
-
-
-    # -------------------------------------------------
-    # VERIFICAR PRODUTO
-    # -------------------------------------------------
-
-    produto = conexao.execute(
-        """
-        SELECT *
-        FROM produtos
-        WHERE id = ?
-        """,
-        (produto_id,)
-    ).fetchone()
-
-
-    if not produto:
-
-        conexao.close()
-
-        flash(
-            "Produto não encontrado."
+        resultado = (
+            supabase
+            .table("produtos")
+            .select("*")
+            .eq(
+                "id",
+                produto_id
+            )
+            .limit(1)
+            .execute()
         )
 
-        return redirect(
-            url_for("admin")
+        produto = (
+            resultado.data[0]
+            if resultado.data
+            else None
         )
 
+        if not produto:
 
-    # -------------------------------------------------
-    # GARANTIR QUE O PREÇO PROMOCIONAL
-    # NÃO SEJA MAIOR OU IGUAL AO PREÇO NORMAL
-    # -------------------------------------------------
+            flash(
+                "Produto não encontrado."
+            )
 
-    if preco_promocional >= produto["preco"]:
+            return redirect(
+                url_for("admin")
+            )
 
-        conexao.close()
+        if preco_promocional >= float(
+            produto["preco"]
+        ):
 
-        flash(
-            "O preço promocional deve ser menor que o preço normal."
-        )
+            flash(
+                "O preço promocional deve ser menor que o preço normal."
+            )
 
-        return redirect(
-            url_for("admin")
-        )
+            return redirect(
+                url_for("admin")
+            )
 
-
-    # -------------------------------------------------
-    # REMOVER OFERTA ANTERIOR
-    # -------------------------------------------------
-
-    conexao.execute(
-        """
-        UPDATE produtos
-
-        SET
-            promocao = 0,
-            preco_promocional = NULL
-
-        WHERE promocao = 1
-        """
-    )
-
-
-    # -------------------------------------------------
-    # DEFINIR NOVA OFERTA
-    # -------------------------------------------------
-
-    conexao.execute(
-        """
-        UPDATE produtos
-
-        SET
-            promocao = 1,
-            preco_promocional = ?
-
-        WHERE id = ?
-        """,
         (
-            preco_promocional,
-            produto_id,
+            supabase
+            .table("produtos")
+            .update(
+                {
+                    "promocao": False,
+                    "preco_promocional": None,
+                }
+            )
+            .eq(
+                "promocao",
+                True
+            )
+            .execute()
         )
-    )
 
+        (
+            supabase
+            .table("produtos")
+            .update(
+                {
+                    "promocao": True,
+                    "preco_promocional":
+                        preco_promocional,
+                }
+            )
+            .eq(
+                "id",
+                produto_id
+            )
+            .execute()
+        )
 
-    conexao.commit()
+    else:
 
-    conexao.close()
+        criar_banco_local()
 
+        conexao = conectar_sqlite()
+
+        produto = conexao.execute(
+            """
+            SELECT *
+            FROM produtos
+            WHERE id = ?
+            """,
+            (produto_id,)
+        ).fetchone()
+
+        if not produto:
+
+            conexao.close()
+
+            flash(
+                "Produto não encontrado."
+            )
+
+            return redirect(
+                url_for("admin")
+            )
+
+        if preco_promocional >= produto["preco"]:
+
+            conexao.close()
+
+            flash(
+                "O preço promocional deve ser menor que o preço normal."
+            )
+
+            return redirect(
+                url_for("admin")
+            )
+
+        conexao.execute(
+            """
+            UPDATE produtos
+
+            SET
+                promocao = 0,
+                preco_promocional = NULL
+
+            WHERE promocao = 1
+            """
+        )
+
+        conexao.execute(
+            """
+            UPDATE produtos
+
+            SET
+                promocao = 1,
+                preco_promocional = ?
+
+            WHERE id = ?
+            """,
+            (
+                preco_promocional,
+                produto_id,
+            )
+        )
+
+        conexao.commit()
+
+        conexao.close()
 
     flash(
-        f"{produto['nome']} foi definido como oferta da semana!"
+        "Oferta da semana definida com sucesso!"
     )
-
 
     return redirect(
         url_for("admin")
@@ -1273,10 +1611,6 @@ def definir_oferta(produto_id):
 )
 def remover_oferta(produto_id):
 
-    # -------------------------------------------------
-    # PROTEÇÃO NO SERVIDOR
-    # -------------------------------------------------
-
     if not administrador_logado():
 
         flash(
@@ -1287,33 +1621,50 @@ def remover_oferta(produto_id):
             url_for("login")
         )
 
+    if SUPABASE_ATIVO:
 
-    conexao = conectar()
+        (
+            supabase
+            .table("produtos")
+            .update(
+                {
+                    "promocao": False,
+                    "preco_promocional": None,
+                }
+            )
+            .eq(
+                "id",
+                produto_id
+            )
+            .execute()
+        )
 
+    else:
 
-    conexao.execute(
-        """
-        UPDATE produtos
+        criar_banco_local()
 
-        SET
-            promocao = 0,
-            preco_promocional = NULL
+        conexao = conectar_sqlite()
 
-        WHERE id = ?
-        """,
-        (produto_id,)
-    )
+        conexao.execute(
+            """
+            UPDATE produtos
 
+            SET
+                promocao = 0,
+                preco_promocional = NULL
 
-    conexao.commit()
+            WHERE id = ?
+            """,
+            (produto_id,)
+        )
 
-    conexao.close()
+        conexao.commit()
 
+        conexao.close()
 
     flash(
         "Oferta removida com sucesso!"
     )
-
 
     return redirect(
         url_for("admin")
@@ -1321,14 +1672,16 @@ def remover_oferta(produto_id):
 
 
 # =====================================================
-# INICIALIZAÇÃO DO BANCO
+# INICIALIZAÇÃO
 # =====================================================
 
-criar_banco()
+if not SUPABASE_ATIVO:
+
+    criar_banco_local()
 
 
 # =====================================================
-# EXECUTAR APLICAÇÃO
+# EXECUTAR
 # =====================================================
 
 if __name__ == "__main__":
@@ -1339,7 +1692,6 @@ if __name__ == "__main__":
             5000
         )
     )
-
 
     app.run(
         host="0.0.0.0",

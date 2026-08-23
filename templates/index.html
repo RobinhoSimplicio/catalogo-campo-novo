@@ -179,7 +179,18 @@
 
 
 
-                
+                <!-- =================================================
+                     BOTÃO WHATSAPP DA OFERTA
+                ================================================== -->
+
+                <a
+                    class="hero-botao"
+                    href="https://wa.me/{{ loja.whatsapp }}?text=Ol%C3%A1!%20Tenho%20interesse%20na%20oferta%20da%20semana%3A%20{{ promocao.nome|urlencode }}.%20De%20R%24%20{{ ('%.2f'|format(promocao.preco))|replace('.', ',') }}%20por%20R%24%20{{ ('%.2f'|format(promocao.preco_promocional))|replace('.', ',') }}."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    💬 Tenho interesse nesta oferta
+                </a>
 
 
             </div>
@@ -193,10 +204,16 @@
 
                 {% if promocao.imagem %}
 
-                <img
-                    src="{{ url_for('static', filename='img/' + promocao.imagem) }}"
-                    alt="{{ promocao.nome }}"
+                <a
+                    href="{{ url_for('produto', produto_id=promocao.id) }}"
                 >
+
+                    <img
+                        src="{{ url_for('static', filename='img/' + promocao.imagem) }}"
+                        alt="{{ promocao.nome }}"
+                    >
+
+                </a>
 
                 {% else %}
 
@@ -421,7 +438,9 @@
 
 
 
-            <!-- IMAGEM DO PRODUTO -->
+            <!-- =================================================
+                 IMAGEM DO PRODUTO
+            ================================================== -->
 
             <a
                 href="{{ url_for('produto', produto_id=produto.id) }}"
@@ -451,7 +470,9 @@
 
 
 
-            <!-- INFORMAÇÕES -->
+            <!-- =================================================
+                 INFORMAÇÕES
+            ================================================== -->
 
             <div class="card-conteudo">
 
@@ -540,15 +561,32 @@
 
 
                 <!-- =================================================
-                     BOTÃO
+                     BOTÃO TENHO INTERESSE
                 ================================================== -->
 
-                <a
-                    class="botao-interesse"
-                    href="{{ url_for('produto', produto_id=produto.id) }}"
-                >
-                    Ver produto
-                </a>
+                {% if produto.promocao and produto.preco_promocional %}
+
+                    <a
+                        class="botao-interesse"
+                        href="https://wa.me/{{ loja.whatsapp }}?text=Ol%C3%A1!%20Tenho%20interesse%20no%20produto%3A%20{{ produto.nome|urlencode }}.%20De%20R%24%20{{ ('%.2f'|format(produto.preco))|replace('.', ',') }}%20por%20R%24%20{{ ('%.2f'|format(produto.preco_promocional))|replace('.', ',') }}."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        💬 Tenho interesse
+                    </a>
+
+                {% else %}
+
+                    <a
+                        class="botao-interesse"
+                        href="https://wa.me/{{ loja.whatsapp }}?text=Ol%C3%A1!%20Tenho%20interesse%20no%20produto%3A%20{{ produto.nome|urlencode }}.%20Pre%C3%A7o%3A%20R%24%20{{ ('%.2f'|format(produto.preco))|replace('.', ',') }}."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        💬 Tenho interesse
+                    </a>
+
+                {% endif %}
 
 
             </div>
