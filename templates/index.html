@@ -36,7 +36,6 @@
 
     <div class="topo-conteudo">
 
-
         <!-- LOGO -->
 
         <a
@@ -49,7 +48,6 @@
                 src="{{ url_for('static', filename='img/logo.png') }}"
                 alt="Campo Novo - Agrosoluções"
             >
-
 
             <div class="nome-loja">
 
@@ -66,11 +64,9 @@
         </a>
 
 
-
         <!-- MENU -->
 
         <nav class="menu-topo">
-
 
             {% if administrador %}
 
@@ -93,7 +89,6 @@
             {% endif %}
 
 
-
             <a
                 class="whatsapp-topo"
                 href="https://wa.me/{{ loja.whatsapp }}"
@@ -103,9 +98,7 @@
                 💬 WhatsApp
             </a>
 
-
         </nav>
-
 
     </div>
 
@@ -121,31 +114,23 @@
 
     <div class="hero-conteudo">
 
-
         {% if promocao %}
 
-
-        <!-- =================================================
-             OFERTA CADASTRADA PELO ADMINISTRADOR
-        ================================================== -->
+        <!-- OFERTA CADASTRADA -->
 
         <div class="promocao-banner">
-
 
             <!-- TEXTO -->
 
             <div class="promocao-texto">
 
-
                 <span class="promocao-etiqueta">
                     🔥 OFERTA DA SEMANA
                 </span>
 
-
                 <h1>
                     {{ promocao.nome }}
                 </h1>
-
 
                 {% if promocao.descricao %}
 
@@ -154,7 +139,6 @@
                 </p>
 
                 {% endif %}
-
 
 
                 <!-- PREÇO NORMAL -->
@@ -167,8 +151,7 @@
                 </span>
 
 
-
-                <!-- PREÇO DA OFERTA -->
+                <!-- PREÇO PROMOCIONAL -->
 
                 <span class="preco-promocional">
 
@@ -178,10 +161,7 @@
                 </span>
 
 
-
-                <!-- =================================================
-                     BOTÃO WHATSAPP DA OFERTA
-                ================================================== -->
+                <!-- BOTÃO WHATSAPP -->
 
                 <a
                     class="hero-botao"
@@ -192,15 +172,12 @@
                     💬 Tenho interesse nesta oferta
                 </a>
 
-
             </div>
 
 
-
-            <!-- IMAGEM -->
+            <!-- IMAGEM DA OFERTA -->
 
             <div class="promocao-imagem">
-
 
                 {% if promocao.imagem %}
 
@@ -208,10 +185,21 @@
                     href="{{ url_for('produto', produto_id=promocao.id) }}"
                 >
 
+                    {% if promocao.imagem.startswith('http') %}
+
+                    <img
+                        src="{{ promocao.imagem }}"
+                        alt="{{ promocao.nome }}"
+                    >
+
+                    {% else %}
+
                     <img
                         src="{{ url_for('static', filename='img/' + promocao.imagem) }}"
                         alt="{{ promocao.nome }}"
                     >
+
+                    {% endif %}
 
                 </a>
 
@@ -223,12 +211,9 @@
 
                 {% endif %}
 
-
             </div>
 
-
         </div>
-
 
 
         {% else %}
@@ -240,25 +225,20 @@
 
         <div class="promocao-padrao">
 
-
             <div class="promocao-padrao-texto">
-
 
                 <span class="etiqueta">
                     DESTAQUE DA SEMANA
                 </span>
 
-
                 <h1>
                     Confira nossas ofertas!
                 </h1>
-
 
                 <p>
                     Produtos selecionados para facilitar
                     o seu trabalho no campo.
                 </p>
-
 
                 <a
                     class="hero-botao"
@@ -267,9 +247,7 @@
                     Ver produtos
                 </a>
 
-
             </div>
-
 
 
             <!-- IMAGEM PADRÃO -->
@@ -283,12 +261,9 @@
 
             </div>
 
-
         </div>
 
-
         {% endif %}
-
 
     </div>
 
@@ -309,7 +284,6 @@
 
 <section class="busca-area">
 
-
     <form
         method="GET"
         action="{{ url_for('index') }}"
@@ -323,7 +297,6 @@
             placeholder="🔎 O que você está procurando?"
         >
 
-
         <button type="submit">
             Buscar
         </button>
@@ -331,13 +304,11 @@
     </form>
 
 
-
     <!-- CATEGORIAS -->
 
     {% if categorias %}
 
     <div class="categorias">
-
 
         <a
             href="{{ url_for('index') }}"
@@ -358,11 +329,9 @@
 
         {% endfor %}
 
-
     </div>
 
     {% endif %}
-
 
 </section>
 
@@ -377,11 +346,9 @@
     id="produtos"
 >
 
-
     <!-- TÍTULO -->
 
     <div class="titulo-secao">
-
 
         <div>
 
@@ -389,13 +356,11 @@
                 NOSSO CATÁLOGO
             </span>
 
-
             <h2>
                 Produtos
             </h2>
 
         </div>
-
 
         <p>
 
@@ -405,9 +370,7 @@
 
         </p>
 
-
     </div>
-
 
 
     {% if produtos %}
@@ -437,7 +400,6 @@
             {% endif %}
 
 
-
             <!-- =================================================
                  IMAGEM DO PRODUTO
             ================================================== -->
@@ -447,15 +409,29 @@
                 class="imagem-produto"
             >
 
-
                 {% if produto.imagem %}
 
-                <img
-                    src="{{ url_for('static', filename='img/' + produto.imagem) }}"
-                    alt="{{ produto.nome }}"
-                    loading="lazy"
-                >
+                    {% if produto.imagem.startswith('http') %}
 
+                    <!-- IMAGEM DO SUPABASE -->
+
+                    <img
+                        src="{{ produto.imagem }}"
+                        alt="{{ produto.nome }}"
+                        loading="lazy"
+                    >
+
+                    {% else %}
+
+                    <!-- IMAGEM LOCAL ANTIGA -->
+
+                    <img
+                        src="{{ url_for('static', filename='img/' + produto.imagem) }}"
+                        alt="{{ produto.nome }}"
+                        loading="lazy"
+                    >
+
+                    {% endif %}
 
                 {% else %}
 
@@ -465,9 +441,7 @@
 
                 {% endif %}
 
-
             </a>
-
 
 
             <!-- =================================================
@@ -488,13 +462,11 @@
                 {% endif %}
 
 
-
                 <!-- NOME -->
 
                 <h3>
                     {{ produto.nome }}
                 </h3>
-
 
 
                 <!-- DESCRIÇÃO -->
@@ -508,18 +480,15 @@
                 {% endif %}
 
 
-
                 <!-- =================================================
                      PREÇO
                 ================================================== -->
 
                 {% if produto.promocao and produto.preco_promocional %}
 
-
                 <!-- PRODUTO EM OFERTA -->
 
                 <div class="preco">
-
 
                     <small class="preco-riscado">
 
@@ -528,9 +497,7 @@
 
                     </small>
 
-
                     <br>
-
 
                     <span class="preco-oferta">
 
@@ -539,12 +506,9 @@
 
                     </span>
 
-
                 </div>
 
-
                 {% else %}
-
 
                 <!-- PREÇO NORMAL -->
 
@@ -555,9 +519,7 @@
 
                 </div>
 
-
                 {% endif %}
-
 
 
                 <!-- =================================================
@@ -566,25 +528,25 @@
 
                 {% if produto.promocao and produto.preco_promocional %}
 
-                    <a
-                        class="botao-interesse"
-                        href="https://wa.me/{{ loja.whatsapp }}?text=Ol%C3%A1!%20Tenho%20interesse%20no%20produto%3A%20{{ produto.nome|urlencode }}.%20De%20R%24%20{{ ('%.2f'|format(produto.preco))|replace('.', ',') }}%20por%20R%24%20{{ ('%.2f'|format(produto.preco_promocional))|replace('.', ',') }}."
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        💬 Tenho interesse
-                    </a>
+                <a
+                    class="botao-interesse"
+                    href="https://wa.me/{{ loja.whatsapp }}?text=Ol%C3%A1!%20Tenho%20interesse%20no%20produto%3A%20{{ produto.nome|urlencode }}.%20De%20R%24%20{{ ('%.2f'|format(produto.preco))|replace('.', ',') }}%20por%20R%24%20{{ ('%.2f'|format(produto.preco_promocional))|replace('.', ',') }}."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    💬 Tenho interesse
+                </a>
 
                 {% else %}
 
-                    <a
-                        class="botao-interesse"
-                        href="https://wa.me/{{ loja.whatsapp }}?text=Ol%C3%A1!%20Tenho%20interesse%20no%20produto%3A%20{{ produto.nome|urlencode }}.%20Pre%C3%A7o%3A%20R%24%20{{ ('%.2f'|format(produto.preco))|replace('.', ',') }}."
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        💬 Tenho interesse
-                    </a>
+                <a
+                    class="botao-interesse"
+                    href="https://wa.me/{{ loja.whatsapp }}?text=Ol%C3%A1!%20Tenho%20interesse%20no%20produto%3A%20{{ produto.nome|urlencode }}.%20Pre%C3%A7o%3A%20R%24%20{{ ('%.2f'|format(produto.preco))|replace('.', ',') }}."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    💬 Tenho interesse
+                </a>
 
                 {% endif %}
 
@@ -601,7 +563,6 @@
     </div>
 
 
-
     {% else %}
 
 
@@ -611,29 +572,24 @@
 
     <div class="nenhum-produto">
 
-
         <div>
             🔎
         </div>
 
-
         <h3>
             Nenhum produto encontrado
         </h3>
-
 
         <p>
             Tente pesquisar por outro termo
             ou veja todas as categorias.
         </p>
 
-
         <a
             href="{{ url_for('index') }}"
         >
             Ver todos os produtos
         </a>
-
 
     </div>
 
@@ -654,27 +610,21 @@
 
 <footer>
 
-
     <div class="rodape-conteudo">
-
 
         <strong>
             Campo Novo - Agrosoluções
         </strong>
 
-
         <p>
             Tudo para o homem do campo.
         </p>
-
 
         <small>
             © 2026 Campo Novo - Agrosoluções
         </small>
 
-
     </div>
-
 
 </footer>
 
