@@ -19,134 +19,387 @@
         | {{ loja.nome }}
     </title>
 
+
     <style>
 
         * {
             box-sizing: border-box;
         }
 
+
         body {
             margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
             background: #f4f6f3;
+
             color: #263326;
         }
 
+
+        /* =====================================================
+           CABEÇALHO
+        ===================================================== */
+
         header {
             background: #1f5d35;
+
             color: white;
+
             padding: 22px;
         }
 
+
         header div {
             max-width: 750px;
+
             margin: auto;
         }
+
 
         header h1 {
             margin: 0;
         }
 
+
+        header p {
+            margin-bottom: 0;
+
+            opacity: .85;
+        }
+
+
+
+        /* =====================================================
+           CONTEÚDO
+        ===================================================== */
+
         main {
             max-width: 750px;
+
             margin: 35px auto;
+
             padding: 0 20px;
         }
 
+
         .formulario {
             background: white;
+
             padding: 30px;
+
             border-radius: 14px;
-            box-shadow: 0 3px 15px rgba(0,0,0,.08);
+
+            box-shadow:
+                0 3px 15px
+                rgba(0,0,0,.08);
         }
+
+
+        .formulario h2 {
+            margin-top: 0;
+
+            color: #1f5d35;
+        }
+
+
+
+        /* =====================================================
+           CAMPOS
+        ===================================================== */
 
         label {
             display: block;
+
             margin-top: 18px;
+
             margin-bottom: 7px;
+
             font-weight: bold;
+
+            color: #263326;
         }
+
 
         input,
-        textarea {
+        textarea,
+        select {
+
             width: 100%;
+
             padding: 12px;
+
             border: 1px solid #ccd5cc;
+
             border-radius: 7px;
+
             font-size: 16px;
+
+            font-family: inherit;
+
+            background: white;
+
+            color: #263326;
+
+            outline: none;
+
         }
 
-        textarea {
-            min-height: 120px;
-            resize: vertical;
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+
+            border-color: #1f5d35;
+
+            box-shadow:
+                0 0 0 2px
+                rgba(31,93,53,.10);
+
         }
+
+
+        textarea {
+
+            min-height: 120px;
+
+            resize: vertical;
+
+        }
+
+
+
+        /* =====================================================
+           SELECT DE CATEGORIA
+        ===================================================== */
+
+        select {
+
+            cursor: pointer;
+
+            appearance: auto;
+
+        }
+
+
+        .categoria-dica {
+
+            margin-top: 7px;
+
+            color: #6b776c;
+
+            font-size: 13px;
+
+        }
+
+
+
+        /* =====================================================
+           FOTO ATUAL
+        ===================================================== */
 
         .foto-atual {
+
             margin-top: 15px;
+
             padding: 15px;
+
             background: #f1f4f0;
+
             border-radius: 10px;
+
             text-align: center;
+
         }
+
+
+        .foto-atual p {
+
+            margin-top: 0;
+
+        }
+
 
         .foto-atual img {
+
             max-width: 220px;
+
             max-height: 220px;
+
             object-fit: contain;
+
             border-radius: 8px;
+
         }
+
+
+
+        /* =====================================================
+           UPLOAD
+        ===================================================== */
 
         .upload {
+
             margin-top: 10px;
+
             padding: 20px;
+
             background: #eef5ee;
+
             border: 2px dashed #a9bea9;
+
             border-radius: 10px;
+
         }
+
 
         .upload input {
+
             background: white;
+
         }
+
 
         .dica {
+
             margin-top: 10px;
+
             font-size: 14px;
+
             color: #5d695d;
+
+            line-height: 1.5;
+
         }
 
+
+
+        /* =====================================================
+           BOTÕES
+        ===================================================== */
+
         .botoes {
+
             display: flex;
+
             gap: 10px;
+
             margin-top: 25px;
+
             flex-wrap: wrap;
+
         }
+
 
         button,
         .botao {
+
             padding: 12px 18px;
+
             border: 0;
+
             border-radius: 8px;
+
             font-weight: bold;
+
             cursor: pointer;
+
             text-decoration: none;
+
             display: inline-block;
+
         }
+
 
         button {
+
             background: #e9a62a;
+
             color: #1f2b1f;
+
         }
 
+
+        button:hover {
+
+            background: #f0b33d;
+
+        }
+
+
         .cancelar {
+
             background: #e8ece8;
+
             color: #263326;
+
+        }
+
+
+        .cancelar:hover {
+
+            background: #dce3dc;
+
+        }
+
+
+
+        /* =====================================================
+           RESPONSIVO
+        ===================================================== */
+
+        @media (max-width: 600px) {
+
+            main {
+
+                margin-top: 20px;
+
+                padding:
+                    0 14px;
+
+            }
+
+
+            .formulario {
+
+                padding: 22px 18px;
+
+            }
+
+
+            .botoes {
+
+                flex-direction: column;
+
+            }
+
+
+            button,
+            .botao {
+
+                width: 100%;
+
+                text-align: center;
+
+            }
+
         }
 
     </style>
 
 </head>
 
+
 <body>
+
+
+<!-- =====================================================
+     CABEÇALHO
+===================================================== -->
 
 <header>
 
@@ -165,29 +418,52 @@
 </header>
 
 
+
+<!-- =====================================================
+     CONTEÚDO
+===================================================== -->
+
 <main>
 
     <div class="formulario">
 
+
         <h2>
 
             {% if produto %}
+
                 Editar produto
+
             {% else %}
+
                 Cadastrar produto
+
             {% endif %}
 
         </h2>
 
+
+
+        <!-- =================================================
+             FORMULÁRIO
+        ================================================== -->
 
         <form
             method="POST"
             enctype="multipart/form-data"
         >
 
+
+            <!-- =================================================
+                 NOME
+            ================================================== -->
+
             <label for="nome">
+
                 Nome do produto
+
             </label>
+
 
             <input
                 type="text"
@@ -199,9 +475,17 @@
             >
 
 
+
+            <!-- =================================================
+                 PREÇO
+            ================================================== -->
+
             <label for="preco">
+
                 Preço
+
             </label>
+
 
             <input
                 type="text"
@@ -213,22 +497,155 @@
             >
 
 
+
+            <!-- =================================================
+                 CATEGORIA
+            ================================================== -->
+
             <label for="categoria">
+
                 Categoria
+
             </label>
 
-            <input
-                type="text"
+
+            <select
                 id="categoria"
                 name="categoria"
-                value="{{ produto.categoria if produto else '' }}"
-                placeholder="Ex.: Sementes"
+                required
             >
 
+                <option
+                    value=""
+                    disabled
+                    {% if not produto or not produto.categoria %}
+                        selected
+                    {% endif %}
+                >
+                    Selecione uma categoria
+                </option>
+
+
+                <option
+                    value="Implementos Agrícolas"
+                    {% if produto and produto.categoria == "Implementos Agrícolas" %}
+                        selected
+                    {% endif %}
+                >
+                    Implementos Agrícolas
+                </option>
+
+
+                <option
+                    value="Medicamentos Veterinários"
+                    {% if produto and produto.categoria == "Medicamentos Veterinários" %}
+                        selected
+                    {% endif %}
+                >
+                    Medicamentos Veterinários
+                </option>
+
+
+                <option
+                    value="Sementes"
+                    {% if produto and produto.categoria == "Sementes" %}
+                        selected
+                    {% endif %}
+                >
+                    Sementes
+                </option>
+
+
+                <option
+                    value="Adubos"
+                    {% if produto and produto.categoria == "Adubos" %}
+                        selected
+                    {% endif %}
+                >
+                    Adubos
+                </option>
+
+
+                <option
+                    value="Rações"
+                    {% if produto and produto.categoria == "Rações" %}
+                        selected
+                    {% endif %}
+                >
+                    Rações
+                </option>
+
+
+                <option
+                    value="EPIs"
+                    {% if produto and produto.categoria == "EPIs" %}
+                        selected
+                    {% endif %}
+                >
+                    EPIs
+                </option>
+
+
+                <option
+                    value="Assistência Técnica"
+                    {% if produto and produto.categoria == "Assistência Técnica" %}
+                        selected
+                    {% endif %}
+                >
+                    Assistência Técnica
+                </option>
+
+
+                <option
+                    value="PETs"
+                    {% if produto and produto.categoria == "PETs" %}
+                        selected
+                    {% endif %}
+                >
+                    PETs
+                </option>
+
+
+                <option
+                    value="Ferramentas"
+                    {% if produto and produto.categoria == "Ferramentas" %}
+                        selected
+                    {% endif %}
+                >
+                    Ferramentas
+                </option>
+
+
+                <option
+                    value="Variedades"
+                    {% if produto and produto.categoria == "Variedades" %}
+                        selected
+                    {% endif %}
+                >
+                    Variedades
+                </option>
+
+            </select>
+
+
+            <div class="categoria-dica">
+
+                Escolha a categoria correspondente ao produto.
+
+            </div>
+
+
+
+            <!-- =================================================
+                 DESCRIÇÃO
+            ================================================== -->
 
             <label for="descricao">
+
                 Descrição
+
             </label>
+
 
             <textarea
                 id="descricao"
@@ -237,9 +654,17 @@
             >{{ produto.descricao if produto else '' }}</textarea>
 
 
+
+            <!-- =================================================
+                 FOTO
+            ================================================== -->
+
             <label>
+
                 Foto do produto
+
             </label>
+
 
 
             {% if produto and produto.imagem %}
@@ -247,21 +672,42 @@
                 <div class="foto-atual">
 
                     <p>
-                        <strong>Foto atual</strong>
+
+                        <strong>
+                            Foto atual
+                        </strong>
+
                     </p>
 
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='img/' + produto.imagem
-                        ) }}"
-                        alt="{{ produto.nome }}"
-                    >
+
+                    {% if produto.imagem.startswith('http') %}
+
+                        <img
+                            src="{{ produto.imagem }}"
+                            alt="{{ produto.nome }}"
+                        >
+
+                    {% else %}
+
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='img/' + produto.imagem
+                            ) }}"
+                            alt="{{ produto.nome }}"
+                        >
+
+                    {% endif %}
 
                 </div>
 
             {% endif %}
 
+
+
+            <!-- =================================================
+                 UPLOAD
+            ================================================== -->
 
             <div class="upload">
 
@@ -270,6 +716,7 @@
                     name="foto"
                     accept="image/png,image/jpeg,image/webp,image/gif"
                 >
+
 
                 <div class="dica">
 
@@ -281,10 +728,14 @@
                     Tamanho máximo:
                     5 MB.
 
+
                     {% if produto %}
+
                         <br>
+
                         Se não escolher uma nova foto,
                         a foto atual será mantida.
+
                     {% endif %}
 
                 </div>
@@ -292,14 +743,24 @@
             </div>
 
 
+
+            <!-- =================================================
+                 BOTÕES
+            ================================================== -->
+
             <div class="botoes">
+
 
                 <button type="submit">
 
                     {% if produto %}
+
                         Salvar alterações
+
                     {% else %}
+
                         Cadastrar produto
+
                     {% endif %}
 
                 </button>
@@ -312,13 +773,17 @@
                     Cancelar
                 </a>
 
+
             </div>
 
+
         </form>
+
 
     </div>
 
 </main>
+
 
 </body>
 
